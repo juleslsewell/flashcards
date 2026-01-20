@@ -1,0 +1,2561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>DARNFASTIF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #FFFFFF;
+      --bg-secondary: #F5F5F7;
+      --bg-tertiary: #FAFAFA;
+      --text-primary: #1D1D1F;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #AEAEB2;
+      --text-disabled: #C7C7CC;
+      --accent-blue: #0071E3;
+      --accent-green: #30D158;
+      --accent-orange: #FF9F0A;
+      --border-light: rgba(0, 0, 0, 0.04);
+      --border-medium: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    html, body { margin: 0; padding: 0; font-family: var(--font); background: var(--bg-primary); color: var(--text-primary); font-size: 17px; line-height: 1.47; }
+    #root { min-height: 100vh; min-height: 100dvh; }
+    button { font-family: inherit; transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); border: none; background: none; cursor: pointer; }
+    button:active { transform: scale(0.97); }
+    button:disabled { cursor: default; transform: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ============================================
+    // DATA - AUTO-GENERATED FROM SPREADSHEET
+    // ============================================
+
+        const algorithmSections = [
+      { id: 'diagnosis', letter: 'D', name: 'Diagnosis', type: 'main', prompts: [] },
+      { id: 'aetiology', letter: 'A', name: 'Aetiology', type: 'main', prompts: [] },
+      { id: 'risk_factors', letter: 'R', name: 'Risk Factors', type: 'main', prompts: [] },
+      { id: 'progress', letter: null, name: 'Progress', type: 'bridge', prompts: [] },
+      { id: 'now', letter: 'N', name: 'Now', type: 'main', hasChildren: true, prompts: [] },
+      { id: 'management', name: 'Management', type: 'child', parent: 'now', prompts: [] },
+      { id: 'complications', name: 'Complications', type: 'child', parent: 'now', prompts: [] },
+      { id: 'current_status', name: 'Current Status', type: 'sidebar' },
+      { id: 'function', letter: 'F', name: 'Function', type: 'sidebar-item', prompts: [] },
+      { id: 'adherence', letter: 'A', name: 'Adherence', type: 'sidebar-item', prompts: [] },
+      { id: 'symptoms', letter: 'S', name: 'Symptoms', type: 'sidebar-item', prompts: [] },
+      { id: 'targets', letter: 'T', name: 'Targets', type: 'sidebar-item', prompts: [] },
+      { id: 'impact', letter: 'I', name: 'Impact', type: 'sidebar-item', prompts: [] },
+      { id: 'future', letter: 'F', name: 'Future', type: 'main', prompts: [] }
+    ];
+
+    const specialties = [
+      { id: 'rheumatology', name: 'Rheumatology', icon: '🦴' },
+      { id: 'endocrinology', name: 'Endocrinology', icon: '🧬' },
+      { id: 'cardiology', name: 'Cardiology', icon: '❤️' },
+      { id: 'nephrology', name: 'Nephrology', icon: '🫘' },
+      { id: 'infectious_diseases', name: 'Infectious Diseases', icon: '🦠' },
+      { id: 'respiratory', name: 'Respiratory', icon: '🫁' },
+      { id: 'gastroenterology', name: 'Gastroenterology', icon: '🔬' },
+      { id: 'haematology', name: 'Haematology', icon: '🩸' },
+      { id: 'oncology', name: 'Oncology', icon: '🎗️' },
+      { id: 'transplant', name: 'Transplant', icon: '🏥' },
+      { id: 'neurology', name: 'Neurology', icon: '🧠' },
+      { id: 'dermatology', name: 'Dermatology', icon: '🩹' },
+      { id: 'miscellaneous', name: 'Miscellaneous', icon: '📋' }
+    ];
+
+    const conditions = [
+      {
+        id: 'ra',
+        name: 'Rheumatoid Arthritis',
+        specialty: 'rheumatology',
+        modifiers: ['seropositive / seronegative', 'erosive', 'deforming'],
+        resources: [
+          { title: 'Rheumatoid Arthritis: Pathophysiology and Clinical Features', type: 'video', url: 'https://www.youtube.com/watch?v=example1', duration: '18 min' },
+          { title: 'ACR/EULAR 2010 Classification Criteria', type: 'guideline', url: 'https://www.rheumatology.org/guidelines' }
+        ],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (symmetrical/asymmetrical, mono/oligo/polyarthritis)', resources: [{ title: 'Early RA Symptom Recognition', type: 'video', url: 'https://www.youtube.com/watch?v=example2', duration: '8 min' }] },
+            { text: 'Investigations at diagnosis (RhF, CCP, CRP, ESR, synovitis/erosions on XR, US, MRI)', resources: [{ title: 'Interpreting RA Serology and Imaging', type: 'article', url: 'https://www.uptodate.com/contents/ra-diagnosis' }] }
+          ],
+          risk_factors: [
+            { text: 'PHx autoimmunity' },
+            { text: 'FHx autoimmunity' },
+            { text: 'Female sex' },
+            { text: 'Smoking' }
+          ],
+          progress: [
+            { text: 'Disease severity at diagnosis, how did it change over time, what is the best/worst it has been' },
+            { text: 'Hospital admissions' },
+            { text: 'Past treatment and why stopped or changed' },
+            { text: 'Overall steroid burden (frequency/duration of steroids, highest dose/lowest dose)' }
+          ],
+          management: [
+            { text: 'Non-pharmacological: Physio / OT / Hand Therapy / Ex Phys; Foot orthoses / hand splints / gait aids' },
+            { text: 'Pharmacological: NSAIDs; Glucocorticoids (po, IM, IA, IV); csDMARDs (HCQ, MTX, LEF, SSZ); bDMARDs / tsDMARDs (TNFi, JAKi, RTX, IL6i, ABA)' }
+          ],
+          complications: [
+            { text: 'Complications of immunosuppression:' },
+            { text: '• Infections [opportunity to discuss vaccines]' },
+            { text: '• Metabolic complications [especially if on steroids]' },
+            { text: '• Malignancy [opportunity to discuss Ca screening]' },
+            { text: 'Specific medication complications:' },
+            { text: '• Steroids' },
+            { text: '• HCQ – maculopathy' },
+            { text: '• TNFi – SLE, psoriasis, demyelination, heart failure' },
+            { text: '• JAKi – VTE, CVD, Varicella Zoster reactivation' },
+            { text: '• RTX – hypogammaglobulinemia' },
+            { text: '• IL6i – diverticulitis' },
+            { text: 'Accelerated cardiovascular risk (complication of inflammation)' },
+            { text: '• If patient has had IHD could nest some detail here' }
+          ],
+          function: [
+            { text: 'pADLs (consider self-injecting medication, opening medication bottles)' },
+            { text: 'dADLs' },
+            { text: 'cADLs (consider driving)' }
+          ],
+          adherence: [
+            { text: 'Pharmacological adherence' },
+            { text: 'Non-pharmacological adherence' },
+            { text: 'Understanding of illness / insight' }
+          ],
+          symptoms: [
+            { text: 'Articular symptoms: arthralgias; AM stiffness; deformity; synovitis on exam' },
+            { text: 'Extra-articular symptoms & complications: Sjogren\'s; Raynaud\'s; nodules; ILD; pleural effusions; pericarditis; Felty\'s; vasculitis; neuropathy' }
+          ],
+          targets: [
+            { text: 'Assess current disease activity (swollen / tender joint count)' }
+          ],
+          impact: [
+            { text: 'Consider family planning; teratogenicity of medication in females; contraception' }
+          ],
+          future: [
+            { text: 'Follow up: by whom & frequency' }
+          ]
+        }
+      },
+      {
+        id: 'axspa',
+        name: 'Axial Spondyloarthritis',
+        specialty: 'rheumatology',
+        modifiers: ['Radiographic (Ankylosing Spondylitis)/Non-Radiographic'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (inflammatory lower back pain: morning predominance, duration of morning stiffness, responsive to NSAIDs)' },
+            { text: 'Investigations at diagnosis (HLAB27, ESR, CRP, XR, MRI)' }
+          ],
+          risk_factors: [
+            { text: 'HLAB27 positivity' },
+            { text: 'HLAB27 associated conditions (psoriasis, IBD, uveitis)' },
+            { text: 'FHx HLAB27 associated conditions' },
+            { text: 'Male sex (for radiographic axial spondyloarthritis)' }
+          ],
+          progress: [
+            { text: 'Disease severity and trajectory: progressive, relapsing–remitting, or well controlled' },
+            { text: 'Frequency of flares, NSAID requirement' },
+            { text: 'Prior DMARDs/biologics and reasons for escalation or cessation' }
+          ],
+          management: [
+            { text: 'Non pharmacological: exercise, stretching, allied health (physio, exercise physiologist, OT), gait aids' },
+            { text: 'Pharmacological:' },
+            { text: '· NSAIDs' },
+            { text: '· Glucocorticoids (po, IM, IA, IV)' },
+            { text: '· bDMARDs/tsDMARDs (TNFi, JAKi, IL-17i)' }
+          ],
+          complications: [
+            { text: 'Complications of immunosuppression:' },
+            { text: '· Infection [show synthesis by discussing vaccination status]' },
+            { text: '· Malignancy [opportunity to discussing malignancy screening]' },
+            { text: 'Specific medication complications' },
+            { text: 'o Steroids' },
+            { text: 'o TNFi – psoriasis, SLE, demyelination, heart failure' },
+            { text: 'o JAKi – VTE, CVD, varicella zoster reactivation' },
+            { text: 'o IL-17 – fungal infections' },
+            { text: 'Complications of persistent pain' },
+            { text: '· Central sensitisation' },
+            { text: '· Low mood' },
+            { text: 'uveitis' },
+            { text: 'psoriasis' },
+            { text: 'IBD' }
+          ],
+          function: [
+            { text: 'pADLs (consider self-injecting medication, opening medication bottles)' },
+            { text: 'dADLs' },
+            { text: 'cADLs (consider driving)' }
+          ],
+          adherence: [
+            { text: 'Pharmacological adherence' },
+            { text: 'Non-pharmacological adherence' },
+            { text: 'Understanding of illness / insight' }
+          ],
+          symptoms: [
+            { text: 'Articular symptoms' },
+            { text: '· Inflammatory low back pain' },
+            { text: '· Morning stiffness duration' },
+            { text: '· Peripheral arthralgias' },
+            { text: '· Enthesitis' },
+            { text: 'Extra-Articular symptoms' },
+            { text: '· Upper lobe fibrosis' },
+            { text: '· Aortic regurgitation' },
+            { text: '· Psoriasis' },
+            { text: '· IBD' },
+            { text: '· Uveitis' }
+          ],
+          impact: [
+            { text: 'Family planning; teratogenicity of medication in females; contraception' },
+            { text: 'Psychological and socioeconomic burden of persistent pain' }
+          ],
+          Future: [
+            { text: 'Follow up: by whom & frequency' }
+          ]
+        }
+      },
+      {
+        id: 'sle',
+        name: 'Systemic Lupus Erythematosus',
+        specialty: 'rheumatology',
+        modifiers: ['as a subheading.', 'touching on the less serious manifestations.'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: 'Investigations at diagnosis – ANA, ENA, dsDNA, C3, C4, ESR, CRP, haemoproteinuria, erosions/synovitis on imaging, skin or renal biopsy' }
+          ],
+          risk_factors: [
+            { text: 'Female sex' },
+            { text: 'Family history of autoimmune disease' },
+            { text: 'Personal history of autoimmunity' },
+            { text: 'Drugs (TNFi, hydralazine, isoniazid, procainamide, minocycline)' }
+          ],
+          progress: [
+            { text: 'Disease severity and trajectory: progressive, relapsing–remitting, or well controlled' },
+            { text: 'Frequency of flares' },
+            { text: 'Hospital admissions' },
+            { text: 'Overall steroid burden (frequency/duration of steroids, highest dose/lowest dose)' },
+            { text: 'Prior DMARDs/biologics and reasons for escalation or cessation' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: 'Photoprotection' },
+            { text: 'Gloves, beanie, scarf (for Raynaud’s)' },
+            { text: 'Pharmacological management' },
+            { text: 'Glucocorticoids (PO, IM, IA, IV)' },
+            { text: 'HCQ (everyone)' },
+            { text: 'csDMARDs (MTX, AZA, MMF)' },
+            { text: 'bDMARDs (RTX, belimumab, anifrolumab)' },
+            { text: 'Cyclophosphamide' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: 'Complications of immunosuppression' },
+            { text: '• Infections (opportunity to discuss vaccines)' },
+            { text: '• Metabolic complications (especially if on steroids)' },
+            { text: '• Malignancy (opportunity to discuss cancer screening)' },
+            { text: 'Specific medication complications' },
+            { text: '• HCQ – macular toxicity (discuss eye checks)' },
+            { text: '• MTX / AZA / MMF – cytopaenias, hepatitis' },
+            { text: '• AZA – pancreatitis; MTX – pneumonitis, ILD' },
+            { text: '• RTX – hypogammaglobulinaemia' },
+            { text: '• CYC – cystitis, bladder cancer, infertility' },
+            { text: 'Complications of disease' },
+            { text: 'Manifestations' },
+            { text: '• Constitutional' },
+            { text: '• Mucocutaneous' },
+            { text: '• Musculoskeletal' },
+            { text: '• Serosal' },
+            { text: '• Renal' },
+            { text: '• Neurological' },
+            { text: '• Haematological (including APLS)' },
+            { text: 'Obstetric complications – recurrent miscarriage, neonatal SLE/heart block' },
+            { text: 'Accelerated cardiovascular risk (complication of inflammation)' }
+          ],
+          function: [
+            { text: 'pADLs (self-injecting medication, opening medication bottles)' },
+            { text: 'dADLs' },
+            { text: 'cADLs (driving)' }
+          ],
+          adherence: [
+            { text: 'Understanding of illness & insight' }
+          ],
+          symptoms: [
+            { text: 'Active symptoms or manifestations currently' }
+          ],
+          impact: [
+            { text: 'Family planning; teratogenicity of medication; contraception' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'ssc',
+        name: 'Systemic Sclerosis',
+        specialty: 'rheumatology',
+        modifiers: ['Limited/Diffuse', 'Overlap Syndrome (eg if overlaps with SLE or myositis)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: 'Investigations at diagnosis – ANA, RNA polymerase III, ESR, CRP, haemoproteinuria, skin biopsy' }
+          ],
+          risk_factors: [
+            { text: 'Female sex' },
+            { text: 'Family history of autoimmune disease' },
+            { text: 'Personal history of autoimmunity' },
+            { text: 'Malignancy (if temporally related to SSc onset; do not include remote cancer history)' }
+          ],
+          progress: [
+            { text: 'Disease severity and trajectory: progressive, relapsing–remitting, or well controlled' },
+            { text: 'Frequency of flares' },
+            { text: 'Hospital admissions' },
+            { text: 'Overall steroid burden (frequency/duration; highest and lowest dose)' },
+            { text: 'Prior DMARDs/biologics and reasons for escalation or cessation' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Photoprotection' },
+            { text: '• Home blood pressure monitoring' },
+            { text: '• Gloves, beanie, scarf (for Raynaud’s)' },
+            { text: 'Pharmacological management' },
+            { text: '• Glucocorticoids (PO, IM, IA, IV)' },
+            { text: '• csDMARDs (MTX, AZA, MMF)' },
+            { text: '• bDMARDs (IL-6i, TNFi, RTX, belimumab, abatacept)' },
+            { text: '• Cyclophosphamide' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: 'Complications of immunosuppression' },
+            { text: '• Infections (opportunity to discuss vaccines)' },
+            { text: '• Metabolic complications (especially if on steroids)' },
+            { text: '• Malignancy (opportunity to discuss cancer screening)' },
+            { text: 'Complications of specific medication' },
+            { text: '• HCQ – macular toxicity (discuss eye checks)' },
+            { text: '• MTX / AZA / MMF – cytopaenias, hepatitis' },
+            { text: '• AZA – pancreatitis; MTX – pneumonitis, ILD' },
+            { text: '• RTX – hypogammaglobulinaemia' },
+            { text: '• Cyclophosphamide – cystitis, bladder cancer, infertility' },
+            { text: 'Complications of disease (manifestations)' },
+            { text: '• Calcinosis' },
+            { text: '• Raynaud’s and complications (ulcers, osteomyelitis, pain)' },
+            { text: '• Oesophageal dysmotility / GORD / gastroparesis / GAVE' },
+            { text: '• Sclerodactyly' },
+            { text: '• Telangiectasia' },
+            { text: '• Inflammatory arthritis' },
+            { text: '• Myositis' },
+            { text: '• Myocarditis / pericarditis' },
+            { text: '• PAH (limited cutaneous) / ILD (diffuse cutaneous)' },
+            { text: '• Primary biliary cholangitis' },
+            { text: '• Scleroderma renal disease / renal crisis' },
+            { text: '• GI involvement and malnutrition' }
+          ],
+          function: [
+            { text: 'pADLs (self-injecting medication, opening medication bottles)' },
+            { text: 'dADLs' },
+            { text: 'cADLs (driving)' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Active symptoms or manifestations currently' }
+          ],
+          impact: [
+            { text: 'Family planning; teratogenicity of medication; contraception' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'dm',
+        name: 'Diabetes Mellitus',
+        specialty: 'endocrinology',
+        modifiers: ['T1DM', 'T2DM', 'LADA', 'MODY', 'NODAT', 'Pancreatogenic (Type 3C)', 'CF-related', '“insulin-dependent” (if relevant)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (polyuria, polydipsia, DKA, HHS)' },
+            { text: 'Investigations at diagnosis (BGL, HbA1c)' }
+          ],
+          risk_factors: [
+            { text: 'PHx autoimmunity' },
+            { text: 'FHx autoimmunity / diabetes' },
+            { text: 'Obesity' },
+            { text: 'Metabolic syndrome' },
+            { text: 'Gestational diabetes mellitus' },
+            { text: 'Medications – glucocorticoids, tacrolimus, cyclosporin' },
+            { text: 'Cystic fibrosis' },
+            { text: 'Pancreatitis' }
+          ],
+          progress: [
+            { text: 'HbA1c trajectory (best, worst, current)' },
+            { text: 'Hospital admissions' },
+            { text: 'Previous treatment and reasons for change' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Diet' },
+            { text: '• Carbohydrate counting' },
+            { text: '• Exercise' },
+            { text: '• Podiatry / footwear' },
+            { text: '• Eye checks' },
+            { text: 'Pharmacological management' },
+            { text: '• Oral hypoglycaemic agents' },
+            { text: '• Insulin' },
+            { text: '• Premixed insulin regimen' },
+            { text: '• Basal–bolus insulin regimen' },
+            { text: '• Subcutaneous insulin pump' }
+          ],
+          complications: [
+            { text: 'Hypoglycaemic episodes' },
+            { text: '• Frequency' },
+            { text: '• Awareness' },
+            { text: '• Sick day management plan' },
+            { text: '• BSL check prior to driving' },
+            { text: 'Hyperglycaemic episodes' },
+            { text: '• Frequency' },
+            { text: '• Known cause' },
+            { text: '• Action plan' },
+            { text: '• Hospital admissions' },
+            { text: 'Microvascular complications' },
+            { text: '• Peripheral neuropathy' },
+            { text: '• Autonomic neuropathy' },
+            { text: '• Retinopathy' },
+            { text: '• Cataracts' },
+            { text: '• Erectile dysfunction' },
+            { text: '• Nephropathy' },
+            { text: 'Macrovascular complications' },
+            { text: '• Ischaemic heart disease' },
+            { text: '• Cerebrovascular disease' },
+            { text: '• Peripheral vascular disease' },
+            { text: '• Foot ulcer / osteomyelitis' }
+          ],
+          function: [
+            { text: 'pADLs (vision impairment)' },
+            { text: 'dADLs and mobility' },
+            { text: 'cADLs (BSL checks prior to driving)' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          targets: [
+            { text: 'Frequency of BSL checks (finger prick vs CGM)' },
+            { text: 'Current HbA1c' }
+          ],
+          impact: [
+            { text: 'Sexual dysfunction and impact on relationships' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'op',
+        name: 'Osteoporosis',
+        specialty: 'endocrinology',
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Circumstances of diagnosis – routine DEXA vs minimal trauma fracture' },
+            { text: 'T score at diagnosis' }
+          ],
+          risk_factors: [
+            { text: 'Age' },
+            { text: 'Female sex' },
+            { text: 'Low body weight' },
+            { text: 'Physical inactivity' },
+            { text: 'Smoking history' },
+            { text: 'EtOH intake' },
+            { text: 'Hypogonadism / premature menopause' },
+            { text: 'Endocrinological disease (parathyroid, thyroid conditions)' },
+            { text: 'Chronic kidney disease' },
+            { text: 'Chronic liver disease' },
+            { text: 'Inflammatory disease (eg RA)' },
+            { text: 'Glucocorticoid exposure' }
+          ],
+          progress: [
+            { text: 'Serial DEXA results / trend' },
+            { text: 'Previous treatment and why changed' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Dietary calcium intake' },
+            { text: '• Weight bearing exercise' },
+            { text: '• Physiotherapy, OT, falls and balance classes' },
+            { text: '• Vision optimisation' },
+            { text: '• Footwear optimisation' },
+            { text: 'Pharmacological management' },
+            { text: '• Vitamin D supplementation' },
+            { text: '• Anti-resorptive therapies' },
+            { text: '• Bisphosphonates: alendronate, risendronate, zoledronic acid' },
+            { text: '• RANKL inhibitor: denosumab' },
+            { text: '• Selective oestrogen receptor modulators (SERMs): raloxifene (vertebral OP only)' },
+            { text: '• Anabolic therapies' },
+            { text: '• PTH analogues: teriparatide' },
+            { text: '• Sclerostin inhibitor: romosozumab' }
+          ],
+          complications: [
+            { text: 'Complications of medications' },
+            { text: '• Bisphosphonates – oesophagitis, GORD, dysphagia, dyspepsia, hypocalcaemia, osteonecrosis of the jaw, atypical femoral fractures' },
+            { text: '• Denosumab – hypocalcaemia, cellulitis, UTIs, osteonecrosis of the jaw, atypical femoral fractures, rebound vertebral fractures (if stopped abruptly)' },
+            { text: '• Raloxifene – VTE, hot flushes, leg cramps' },
+            { text: '• Teriparatide – hypercalcaemia, dizziness, nausea, leg cramps' },
+            { text: '• Romosozumab – arthralgias, headaches, hypocalcaemia, cardiovascular risk' },
+            { text: 'Complications of osteoporosis' },
+            { text: '• Non-vertebral fractures' },
+            { text: '• Vertebral fractures – kyphosis, chronic pain, radicular pain' }
+          ],
+          function: [
+            { text: 'Mobility' },
+            { text: 'ADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'metabolic_syndrome',
+        name: 'Metabolic Syndrome',
+        specialty: 'endocrinology',
+        modifiers: ['A packaging problems opportunity'],
+        resources: [
+          { title: 'NCEP ATP III Criteria for Metabolic Syndrome', type: 'article', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2675814/#:~:text=In%202001%2C%20the%20National%20Cholesterol,of%20five%20criteria%20are%20met.' }
+        ],
+        content: {
+          diagnosis: [
+            { text: 'Mrs X has metabolic syndrome as evidenced by' },
+            { text: '• Hypertension: on antihypertensive therapy or SBP ≥130 mmHg or DBP ≥85 mmHg' },
+            { text: '• Hyperlipidaemia: on treatment or HDL <1.0 mmol/L (men), <1.3 mmol/L (women), or triglycerides >1.7 mmol/L' },
+            { text: '• Increased abdominal circumference: ≥102 cm (men) or ≥88 cm (women)' },
+            { text: '• Diabetes: on treatment or fasting glucose >5.6 mmol/L' }
+          ],
+          risk_factors: [
+            { text: 'Other risk factors for their elevated cardiovascular risk are:' },
+            { text: 'Non-modifiable' },
+            { text: '• Male sex' },
+            { text: '• Post-menopausal status' },
+            { text: '• Family history of premature cardiovascular disease' },
+            { text: '• First-degree relative <55 years (male) or <65 years (female)' },
+            { text: '• Previous ischaemic event (IHD, CVA)' },
+            { text: 'Modifiable / associated' },
+            { text: '• Obesity (increased BMI, visceral adiposity)' },
+            { text: '• Physical inactivity' },
+            { text: '• Smoking' },
+            { text: '• Inflammatory disease (eg autoimmune disease)' },
+            { text: '• Chronic kidney disease' },
+            { text: '• Obstructive sleep apnoea' },
+            { text: '• Gout' },
+            { text: '• Peripheral vascular disease' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Diet' },
+            { text: '• Physical activity' },
+            { text: '• Surgical management (eg bariatric surgery)' },
+            { text: 'Pharmacological management' },
+            { text: '• Aspirin / antiplatelet therapy' },
+            { text: '• Statin' },
+            { text: '• Antihypertensives' },
+            { text: '• GLP-1 agonists; Contrave; Orlistat' }
+          ],
+          complications: [
+            { text: 'Complications of medications' },
+            { text: '• GLP-1 agonists – gastrointestinal side effects, thyroid cancers' },
+            { text: '• Contrave – headache, seizures, hypertension, dizziness' },
+            { text: '• Orlistat – gastrointestinal side effects, malabsorption of vitamins A, D, E, K' },
+            { text: 'Complications of metabolic syndrome' },
+            { text: '• Ischaemic heart disease, atrial fibrillation' },
+            { text: '• NAFLD, GORD' },
+            { text: '• Osteoarthritis, gout' },
+            { text: '• Obesity hypoventilation syndrome, low mood' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          targets: [
+            { text: 'Current weight' },
+            { text: 'Current blood pressure' },
+            { text: 'Current LDL' },
+            { text: 'Current HbA1c or fasting glucose' },
+            { text: 'Physical activity ≥150 minutes per week of moderate-intensity exercise' }
+          ],
+          future: [
+            { text: 'GP ± endocrinology / cardiology follow-up' },
+            { text: 'Regular monitoring of blood pressure, lipids, glucose, and weight' }
+          ]
+        }
+      },
+      {
+        id: 'hf',
+        name: 'Heart Failure',
+        specialty: 'cardiology',
+        modifiers: ['HFrEF', 'HFpEF', 'HFmrEF'],
+        content: {
+          diagnosis: [
+            { text: 'Diagnosed when' },
+            { text: 'Symptoms at diagnosis (dyspnoea & NYHA symptoms, orthopnoea, PND, lower limb oedema)' },
+            { text: 'Investigations at diagnosis (TTE, BNP, CXR)' }
+          ],
+          aetiology: [
+            { text: 'HFrEF' },
+            { text: '• Ischaemic heart disease' },
+            { text: '• Dilated cardiomyopathy' },
+            { text: '• EtOH-related' },
+            { text: '• Viral myocarditis' },
+            { text: '• Chemotherapy (eg anthracyclines)' },
+            { text: '• Valvular heart disease (advanced)' },
+            { text: '• Tachycardia-mediated' },
+            { text: 'HFpEF' },
+            { text: '• HT' },
+            { text: '• Advanced age' },
+            { text: '• DM' },
+            { text: '• Restrictive cardiomyopathies (amyloid, haemochromatosis, radiation, sarcoidosis)' },
+            { text: '• Pericardial diseases' },
+            { text: '• Valvular heart disease (AS, mitral valvulopathy)' },
+            { text: '• Obesity' }
+          ],
+          progress: [
+            { text: 'Serial TTE results (if known)' },
+            { text: 'Change in exercise tolerance since diagnosis (NYHA grading)' },
+            { text: 'Frequency of episodes of decompensation and suspected trigger (infection, arrhythmia, ischaemia, non-adherence)' },
+            { text: 'Number of hospital admissions (ward vs ICU)' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Salt restriction' },
+            { text: '• Fluid restriction' },
+            { text: '• Daily weight monitoring' },
+            { text: '• Exercise / cardiac rehabilitation' },
+            { text: '• Smoking cessation' },
+            { text: '• Alcohol reduction' },
+            { text: '• Vaccinations' },
+            { text: 'Pharmacological management' },
+            { text: '• ACEi / ARB / ARNI' },
+            { text: '• Beta-blocker' },
+            { text: '• Mineralocorticoid receptor antagonist' },
+            { text: '• SGLT2 inhibitor' },
+            { text: '• Diuretics' },
+            { text: '• Ivabradine' },
+            { text: '• Iron replacement' },
+            { text: 'Surgical management' },
+            { text: '• BiV PPM / CRT' },
+            { text: '• ICD' },
+            { text: '• Transplant work-up' },
+            { text: 'Other management' },
+            { text: '• Palliative care input' },
+            { text: '• Symptom management' },
+            { text: '• Advanced care planning' }
+          ],
+          complications: [
+            { text: 'Complications of medications' },
+            { text: '• Diuretics – hypotension, dyselectrolytaemia, renal impairment, gout' },
+            { text: '• Beta-blockers – bronchospasm' },
+            { text: '• SGLT2 inhibitors – genitourinary infections, euglycaemic ketoacidosis' },
+            { text: '• Mineralocorticoid receptor antagonists – gynaecomastia' },
+            { text: 'Complications of disease' },
+            { text: '• Frequency of decompensation and suspected trigger (infection, arrhythmia, ischaemia, non-adherence)' },
+            { text: '• Arrhythmias' },
+            { text: '• Thromboembolism' },
+            { text: '• Pulmonary hypertension' },
+            { text: '• Cardiorenal syndrome' },
+            { text: '• Congestive hepatopathy' }
+          ],
+          function: [
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Exercise tolerance / NYHA dyspnoea' },
+            { text: 'Orthopnoea' },
+            { text: 'PND' },
+            { text: 'Lower limb oedema on examination' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' },
+            { text: 'Advanced care planning' },
+            { text: 'Transplant candidate' }
+          ]
+        }
+      },
+      {
+        id: 'cvd_rf',
+        name: 'Cardiovascular Risk Factors',
+        specialty: 'cardiology',
+        modifiers: ['A perfect way to package problems: HT', 'hypercholesterolaemia', 'obesity', 'smoking', 'OSA'],
+        content: {
+          risk_factors: [
+            { text: 'Non-modifiable risk factors' },
+            { text: '• Male gender' },
+            { text: '• Post-menopausal status' },
+            { text: '• Previous ischaemic event (eg IHD, CVA)' },
+            { text: '• Family history of premature CVD (first-degree relative with event <55y male, <65y female)' },
+            { text: '• Ex-smoking status' },
+            { text: 'Modifiable risk factors' },
+            { text: '• EtOH; high caloric diet' },
+            { text: '• HT' },
+            { text: '• Hypercholesterolaemia' },
+            { text: '• DM (should be discussed separately)' },
+            { text: '• Elevated BMI; increased waist circumference' },
+            { text: '• PVD' },
+            { text: '• Current smoking status (pack-year history)' },
+            { text: '• Inflammatory disease (eg autoimmunity, HIV, transplant)' },
+            { text: '• Gout' },
+            { text: '• Chronic kidney disease' },
+            { text: '• OSA' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Diet' },
+            { text: '• Exercise' },
+            { text: 'Pharmacological management' },
+            { text: '• Aspirin / antiplatelets' },
+            { text: '• Statin' },
+            { text: '• Antihypertensives' },
+            { text: '• GLP-1 agonists' },
+            { text: 'Surgical management' },
+            { text: '• Bariatric surgery' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'ta',
+        name: 'Tachyarrhythmias',
+        specialty: 'cardiology',
+        modifiers: ['Specify type (if known)', 'AF (paroxysmal', 'persistent', 'permanent and valvular', 'non-valvulvar)', 'Aflutter', 'SVT', 'VT', 'VF'],
+        content: {
+          diagnosis: [
+            { text: 'Specify type (if known): AF (paroxysmal, persistent, permanent; valvular vs non-valvular), atrial flutter, SVT, VT, VF' },
+            { text: 'When diagnosed' },
+            { text: 'Symptoms (if any) at diagnosis' },
+            { text: 'Context of diagnosis (eg rAF in acute illness; AF in context of CVA)' }
+          ],
+          risk_factors: [
+            { text: 'Structural or ischaemic heart disease' },
+            { text: 'Valvular heart disease' },
+            { text: 'Cardiac failure' },
+            { text: 'Thyroid disease' },
+            { text: 'Increasing age' },
+            { text: 'HT' },
+            { text: 'Obesity' },
+            { text: 'Sleep apnoea' },
+            { text: 'EtOH excess' },
+            { text: 'Stimulant use (eg caffeine, illicit drugs)' }
+          ],
+          progress: [
+            { text: 'Frequency of episodes (eg paroxysmal AF, SVT)' },
+            { text: 'Pre-syncopal / syncopal events' },
+            { text: 'Hospital admissions' },
+            { text: 'Escalation in rhythm persistence' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Trigger avoidance (alcohol, caffeine, stimulants)' },
+            { text: '• Weight management (AF)' },
+            { text: '• CPAP (AF)' },
+            { text: '• Vagal manoeuvres education (SVT)' },
+            { text: 'Pharmacological management' },
+            { text: '• Rate control' },
+            { text: '• Beta-blockers (AF)' },
+            { text: '• Non-dihydropyridine calcium channel blockers (AF)' },
+            { text: '• Rhythm control' },
+            { text: '• Antiarrhythmics – Class I / III (AF, SVT)' },
+            { text: '• Anticoagulation for stroke prevention (AF)' },
+            { text: '• Acute termination agents (adenosine, amiodarone) (SVT, VT)' },
+            { text: 'Procedural management' },
+            { text: '• Pulmonary vein isolation' },
+            { text: '• Ablation' },
+            { text: '• Electrical cardioversion' },
+            { text: '• Cox-Maze procedure' },
+            { text: '• ICD' },
+            { text: '• AV node ablation with permanent pacing' },
+            { text: '• Left atrial appendage occlusion' }
+          ],
+          complications: [
+            { text: 'Complications of tachyarrhythmia' },
+            { text: '• CVA (AF)' },
+            { text: '• Heart failure exacerbation' },
+            { text: '• Tachycardia-mediated cardiomyopathy' },
+            { text: '• Syncope' },
+            { text: 'Complications of treatment' },
+            { text: '• Beta-blockers – hypotension, bradycardia, fatigue, bronchchospasm, masking of hypoglycaemia' },
+            { text: '• Calcium channel blockers – hypotension, peripheral oedema' },
+            { text: '• Amiodarone – thyroid toxicity, interstitial pneumonitis/fibrosis, hepatotoxicity' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Palpitations' },
+            { text: 'Exercise tolerance' },
+            { text: 'Episodes of pre-syncope / syncope' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'brady',
+        name: 'Bradyarrhythmias',
+        specialty: 'cardiology',
+        modifiers: ['List type if known', '• Sinus node dysfunction – sinus bradycardia', 'sinus pause', 'sinus arrest', 'sick sinus syndrome (tachy–brady)', '• AV conduction disease – first-degree AV block', 'second-degree AV block (Mobitz I', 'Mobitz II)', 'third-degree AV block', '• Medication-related bradycardia – β-blockers', 'non-DHP calcium channel blockers', 'digoxin', 'anti-arrhythmics', '• Endocrine / metabolic – hypothyroidism', 'electrolyte disturbance (eg hyperkalaemia)', '• Reflex / situational bradycardia – vasovagal', 'carotid sinus hypersensitivity', 'micturition', 'defecation', 'cough', 'swallowing'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms (if any) at diagnosis' },
+            { text: 'Context of diagnosis (eg in the context of acute illness)' }
+          ],
+          risk_factors: [
+            { text: 'Increasing age' },
+            { text: 'Medications and polypharmacy (eg beta blockers, calcium channel blockers)' },
+            { text: 'Prior myocardial infarction' },
+            { text: 'Structural heart disease' },
+            { text: 'Infiltrative disease (amyloid, sarcoid)' },
+            { text: 'Hypothyroidism' }
+          ],
+          progress: [
+            { text: 'Frequency of episodes' },
+            { text: 'Pre-syncopal / syncopal events' },
+            { text: 'Hospital admissions' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Falls alarm' },
+            { text: 'Pharmacological management' },
+            { text: '• Dose reduction or cessation of rate-limiting medication' },
+            { text: '• Electrolyte optimisation' },
+            { text: 'Procedural management' },
+            { text: '• Permanent pacemaker (PPM)' }
+          ],
+          complications: [
+            { text: 'Complications of bradyarrhythmia' },
+            { text: '• Syncope / presyncope' },
+            { text: '• Falls and injury' },
+            { text: 'Complications of treatment' },
+            { text: '• Permanent pacemaker infection' },
+            { text: '• Lead displacement or fracture' }
+          ],
+          function: [
+            { text: 'Working and driving implications' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Exercise tolerance' },
+            { text: 'Episodes of pre-syncope / syncope' }
+          ],
+          future: [
+            { text: 'Follow-up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'neuro',
+        name: 'General Neurology',
+        specialty: 'neurology',
+        modifiers: ['Of course'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: 'Investigations at diagnosis (bloods, CTB, MRIB, LP, EEG)' }
+          ],
+          management: [
+            { text: 'Address condition-specific management here (eg immunosuppression for MS, anticoagulation for previous ischaemic stroke), but function-specific management (eg physio, gait aids, IDC, anti-depressants) with the relevant functional sequelae below' }
+          ],
+          complications: [
+            { text: 'Use the top-down approach (only present the positive, relevant findings)' },
+            { text: 'Fatigue and cognition' },
+            { text: '• Management: alarms, strategies, reminders' },
+            { text: 'Mood' },
+            { text: '• Management: psychology, medications' },
+            { text: 'Headaches' },
+            { text: 'Vision' },
+            { text: '• Management: glasses, eye patch, guide dog' },
+            { text: 'Hearing' },
+            { text: '• Management: hearing aids' },
+            { text: 'Speech and swallowing' },
+            { text: '• Management: speech pathology, communication boards' },
+            { text: 'Nutrition' },
+            { text: '• Management: dietician, thickened feeds, NG feeds, PEG feeds' },
+            { text: 'Motor' },
+            { text: '• Examples: weakness, spasticity, contractures' },
+            { text: '• Braces, splints, orthoses, OT, physio, exercises, home modifications' },
+            { text: 'Sensory' },
+            { text: '• Examples: sensory deficits, neuropathic pain' },
+            { text: 'Bowel and bladder' },
+            { text: '• Examples: continent / incontinent – urinary vs faecal' },
+            { text: '• Management: urinary catheter, bowel or bladder regimen' },
+            { text: 'Autonomic' },
+            { text: '• Examples: postural hypotension / orthostatic intolerance' }
+          ],
+          function: [
+            { text: 'Exercise tolerance' },
+            { text: 'Falls' },
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' },
+            { text: 'Driving' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness / insight' }
+          ],
+          impact: [
+            { text: 'Global impact of illness – before and after' },
+            { text: 'Before this diagnosis Mrs X was [what did they do / enjoy doing]; since the diagnosis [what are they no longer able to do?]' }
+          ],
+          future: [
+            { text: 'Follow up: by whom and frequency' }
+          ]
+        }
+      },
+      {
+        id: 'ms',
+        name: 'Multiple Sclerosis',
+        specialty: 'neurology',
+        modifiers: ['Relapsing–Remitting MS', 'Secondary Progressive MS', 'Primary Progressive MS', 'Clinically Isolated Syndrome', 'Radiologically Isolated Syndrome'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (optic neuritis, sensory disturbance, weakness, diplopia)' },
+            { text: 'Investigations at diagnosis (MRI brain/spine, oligoclonal bands)' }
+          ],
+          risk_factors: [
+            { text: 'Female sex' },
+            { text: 'Family history of MS' },
+            { text: 'Vitamin D deficiency' },
+            { text: 'Smoking history' },
+            { text: 'Prior EBV infection' },
+            { text: 'High latitude exposure' }
+          ],
+          progress: [
+            { text: 'Disease course' },
+            { text: 'Relapsing–remitting' },
+            { text: 'Secondary progressive' },
+            { text: 'Primary progressive' },
+            { text: 'Relapse frequency and severity' },
+            { text: 'Steroid burden' },
+            { text: 'Recovery between relapses' },
+            { text: 'Accumulating disability' }
+          ],
+          management: [
+            { text: 'Pharmacological management' },
+            { text: 'Disease modifying treatment' },
+            { text: 'Injectables' },
+            { text: '• Interferon beta' },
+            { text: '• Glatiramer acetate' },
+            { text: 'Oral agents' },
+            { text: '• Fingolimod' },
+            { text: '• Dimethyl fumarate' },
+            { text: '• Teriflunomide' },
+            { text: 'Monoclonal antibodies' },
+            { text: '• Natalizumab' },
+            { text: '• Ocrelizumab' },
+            { text: '• Alemtuzumab' },
+            { text: 'Relapse management' },
+            { text: '• Glucocorticoids (PO, IV) – quantity, frequency, dose for steroid burden' }
+          ],
+          complications: [
+            { text: 'Complications of disease' },
+            { text: 'Use the top-down approach (only present the positive, relevant findings)' },
+            { text: 'Fatigue and cognition' },
+            { text: '• Management: alarms, strategies, reminders' },
+            { text: 'Mood' },
+            { text: '• Management: psychology, medications' },
+            { text: 'Headaches' },
+            { text: 'Vision' },
+            { text: '• Management: glasses, eye patch, guide dog' },
+            { text: 'Hearing' },
+            { text: '• Management: hearing aids' },
+            { text: 'Speech and swallowing' },
+            { text: '• Management: speech pathology, communication boards' },
+            { text: 'Nutrition' },
+            { text: '• Management: dietician, thickened feeds, NG feeds, PEG feeds' },
+            { text: 'Motor' },
+            { text: '• Examples: weakness, spasticity, contractures' },
+            { text: '• Braces, splints, orthoses, OT, physio, exercises, home modifications' },
+            { text: 'Sensory' },
+            { text: '• Examples: sensory deficits, neuropathic pain' },
+            { text: 'Bowel and bladder' },
+            { text: '• Examples: continent / incontinent – urinary vs faecal' },
+            { text: '• Management: urinary catheter, bowel or bladder regimen' },
+            { text: 'Autonomic' },
+            { text: '• Examples: postural hypotension / orthostatic intolerance' },
+            { text: 'Complications of drug therapy' },
+            { text: '• Interferon beta – fever, myalgia, headache, fatigue, injection-site reactions, mood disturbance, hepatotoxicity, bone marrow suppression, thyroid dysfunction' },
+            { text: '• Glatiramer acetate – injection-site reactions, immediate post-injection reaction (chest tightness, flushing, dyspnoea, palpitations)' },
+            { text: '• Fingolimod – headache, fatigue, bradycardia and AV block (first dose), macular oedema, lymphopenia, infection risk (especially herpes viruses), rebound disease activity on cessation, hypertension, hepatotoxicity' },
+            { text: '• Dimethyl fumarate – flushing, gastrointestinal upset, lymphopenia, progressive multifocal leukoencephalopathy, hepatotoxicity' },
+            { text: '• Teriflunomide – gastrointestinal upset, alopecia, teratogenicity (requires prolonged washout), hepatotoxicity, peripheral neuropathy, hypertension, bone marrow suppression' },
+            { text: '• Natalizumab – headache, fatigue, progressive multifocal leukoencephalopathy (JC virus–positive), serious infections, hypersensitivity reactions, rebound disease activity on withdrawal' },
+            { text: '• Ocrelizumab – infusion-related reactions, upper respiratory tract infections, serious infections, hypogammaglobulinaemia, possible increased malignancy risk' },
+            { text: '• Alemtuzumab – infusion reactions, infections, secondary autoimmune disease (thyroid disease, immune-mediated thrombocytopenia, anti–GBM disease), increased malignancy risk' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'x' }
+          ],
+          impact: [
+            { text: 'Sexual impact' },
+            { text: 'Global impact of illness – before and after' },
+            { text: 'Before this diagnosis Mrs X was [what did they do / enjoy doing]; since the diagnosis [what are they no longer able to do?]' }
+          ],
+          future: [
+            { text: 'Follow up: by whom and frequency' }
+          ]
+        }
+      },
+      {
+        id: 'cva',
+        name: 'Cerebrovascular Accident',
+        specialty: 'neurology',
+        modifiers: ['Ischaemic', 'Haemorrhagic'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (weakness, sensory disturbance, facial droop, dysarthria, dysphagia, aphasia, homonymous hemianopia, monocular vision loss, diplopia, vertigo, ataxia)' },
+            { text: 'Investigations at diagnosis (CTB, MRIB)' }
+          ],
+          aetiology: [
+            { text: 'Ischaemic – lacunar infarct, cardioembolic' },
+            { text: 'Haemorrhagic – intracerebral, subarachnoid' }
+          ],
+          risk_factors: [
+            { text: 'Ischaemic' },
+            { text: '• Large vessel atherosclerosis' },
+            { text: '• Atrial fibrillation' },
+            { text: '• Valvular disease' },
+            { text: '• Patent foramen ovale' },
+            { text: '• Arterial dissection' },
+            { text: '• Vasculitis' },
+            { text: '• Hypercoagulable states' },
+            { text: '• Hypertension' },
+            { text: '• Diabetes mellitus' },
+            { text: '• Hyperlipidaemia' },
+            { text: '• Smoking' },
+            { text: '• Atrial fibrillation' },
+            { text: '• Ischaemic heart disease' },
+            { text: '• Prior stroke or TIA' },
+            { text: '• Obesity' },
+            { text: 'Haemorrhagic' },
+            { text: '• Chronic hypertension' },
+            { text: '• Cerebral amyloid angiopathy' },
+            { text: '• Anticoagulation or antiplatelet therapy' },
+            { text: '• Vascular malformations (AVM, aneurysm)' },
+            { text: '• Trauma' },
+            { text: '• Coagulopathy' },
+            { text: '• Advanced age' },
+            { text: '• Excess alcohol use' },
+            { text: '• Prior intracerebral haemorrhage' }
+          ],
+          progress: [
+            { text: 'Stability or recovery of neurological deficits' },
+            { text: 'Accumulating disability' },
+            { text: 'Cognitive decline or functional deterioration' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Smoking cessation' },
+            { text: '• Diet and exercise modification' },
+            { text: '• Stroke rehabilitation' },
+            { text: '• Falls prevention' },
+            { text: 'Pharmacological management (ischaemic stroke)' },
+            { text: '• Thrombolysis' },
+            { text: '• Antiplatelet therapy' },
+            { text: '• Anticoagulation' },
+            { text: '• Statin therapy' },
+            { text: '• Antihypertensive therapy' },
+            { text: '• Glycaemic control' },
+            { text: 'Pharmacological management (haemorrhagic stroke)' },
+            { text: '• Blood pressure optimisation' },
+            { text: '• Reversal of anticoagulation if indicated' },
+            { text: 'Surgical management (ischaemic stroke)' },
+            { text: '• Carotid endarterectomy' },
+            { text: '• Thrombectomy' },
+            { text: '• Carotid artery stenting' },
+            { text: 'Surgical management (haemorrhagic stroke)' },
+            { text: '• Haematoma evacuation' },
+            { text: '• Decompressive craniotomy' },
+            { text: '• External ventricular drain (EVD)' },
+            { text: '• Aneurysm clipping' },
+            { text: '• Endovascular coiling' }
+          ],
+          complications: [
+            { text: 'Complications of disease' },
+            { text: 'Use the top-down approach (only present the positive, relevant findings)' },
+            { text: 'Fatigue and cognition' },
+            { text: '• Management: alarms, strategies, reminders' },
+            { text: 'Mood' },
+            { text: '• Management: psychology, medications' },
+            { text: 'Headaches' },
+            { text: 'Seizures / epilepsy' },
+            { text: 'Vision' },
+            { text: '• Management: glasses, eye patch, guide dog' },
+            { text: 'Hearing' },
+            { text: 'Speech and swallowing' },
+            { text: '• Management: speech pathology, communication boards' },
+            { text: 'Nutrition' },
+            { text: '• Management: dietician, thickened feeds, NG feeds, PEG feeds' },
+            { text: 'Motor' },
+            { text: '• Examples: weakness, spasticity, contractures' },
+            { text: '• Braces, splints, orthoses, OT, physio, exercises, home modifications' },
+            { text: 'Sensory' },
+            { text: '• Examples: sensory deficits' },
+            { text: 'Bowel and bladder' },
+            { text: '• Examples: continent / incontinent – urinary vs faecal' },
+            { text: '• Management: urinary catheter, bowel or bladder regimen' },
+            { text: 'Complications of drug therapy' },
+            { text: '• Bleeding complications from antithrombotic therapy' },
+            { text: '• Statin-related myopathy or liver dysfunction' },
+            { text: '• Hypotension from antihypertensives' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness / insight' }
+          ],
+          symptoms: [
+            { text: 'x' }
+          ],
+          impact: [
+            { text: 'Sexual impact' },
+            { text: 'Global impact of illness – before and after' },
+            { text: 'Before this diagnosis Mrs X was [what did they do / enjoy doing]; since the diagnosis [what are they no longer able to do?]' }
+          ],
+          future: [
+            { text: 'Follow up: by whom and frequency' }
+          ]
+        }
+      },
+      {
+        id: 'epilepsy',
+        name: 'Epilepsy',
+        specialty: 'neurology',
+        modifiers: ['Focal Onset (Aware', 'Impaired Awareness', 'Motor Onset', 'Non-Motor Onset)', 'Generalised Onset (Motor', 'Non-Motor / Absence)', 'Unknown Onset', 'Epilepsy Syndromes (Juvenile myoclonic epilepsy', 'Lennox–Gastaut syndrome', 'Childhood absence epilepsy)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (number of seizures, focal vs generalised onset)' },
+            { text: 'Investigations at diagnosis (EEG, LP, CTB, MRIB)' }
+          ],
+          aetiology: [
+            { text: 'Epilepsy syndromes (if relevant): juvenile myoclonic epilepsy, Lennox–Gastaut syndrome, childhood absence epilepsy' }
+          ],
+          risk_factors: [
+            { text: 'Prior CNS insult (stroke, CNS infection, tumour)' },
+            { text: 'Family history' },
+            { text: 'Alcohol or substance misuse' }
+          ],
+          progress: [
+            { text: 'Frequency of seizures / breakthrough seizures' },
+            { text: 'Triggers' },
+            { text: 'Periods of seizure freedom' },
+            { text: 'Hospital and ICU admissions' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Seizure first aid education' },
+            { text: '• Avoidance of triggers (sleep deprivation, alcohol)' },
+            { text: '• Alarm / bracelet' },
+            { text: 'Pharmacological management' },
+            { text: '• Sodium valproate' },
+            { text: '• Levetiracetam / brivaracetam' },
+            { text: '• Lamotrigine' },
+            { text: '• Topiramate' },
+            { text: '• Carbamazepine / oxcarbazepine' },
+            { text: '• Lacosamide' },
+            { text: '• Phenytoin' },
+            { text: '• Ethosuximide' },
+            { text: '• Clobazam / clonazepam / midazolam / diazepam / lorazepam' }
+          ],
+          complications: [
+            { text: 'Complications of disease' },
+            { text: '• Post-ictal confusion, headache, or fatigue' },
+            { text: '• Injury' },
+            { text: '• Head trauma' },
+            { text: '• Falls' },
+            { text: '• Fractures' },
+            { text: '• Cognitive impairment' },
+            { text: '• Depression / anxiety' },
+            { text: '• Psychosis (interictal or post-ictal)' },
+            { text: 'Complications of drug therapy' },
+            { text: '• Sodium valproate – nausea/vomiting, weight gain, tremor, sedation, hepatotoxicity, pancreatitis, thrombocytopenia, hyperammonaemia, alopecia' },
+            { text: '• Levetiracetam / brivaracetam – fatigue/dizziness, behavioural disturbance (irritability, agitation, aggression), mood changes/depression' },
+            { text: '• Lamotrigine – dizziness/headache, nausea, rash, Stevens–Johnson syndrome/toxic epidermal necrolysis (especially rapid titration), aseptic meningitis (rare)' },
+            { text: '• Topiramate – cognitive slowing (word-finding difficulties), paraesthesia, weight loss, renal calculi, metabolic acidosis, angle-closure glaucoma' },
+            { text: '• Carbamazepine / oxcarbazepine – dizziness/diplopia/ataxia/nausea, hyponatraemia (especially oxcarbazepine), bone marrow suppression (leukopenia, aplastic anaemia), Stevens–Johnson syndrome (HLA-B*1502 association), hepatotoxicity' },
+            { text: '• Lacosamide – dizziness/ataxia/nausea, cardiac conduction abnormalities' },
+            { text: '• Phenytoin – nystagmus/ataxia/diplopia, gingival hyperplasia, peripheral neuropathy, osteopenia/osteoporosis, megaloblastic anaemia, Stevens–Johnson syndrome' },
+            { text: '• Ethosuximide – gastrointestinal upset, fatigue/headache, behavioural changes, bone marrow suppression, Stevens–Johnson syndrome' },
+            { text: '• Benzodiazepines – sedation/drowsiness/dizziness, cognitive impairment, respiratory depression (dose-related, IV use), tolerance and dependence, withdrawal seizures, falls risk' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness / insight' },
+            { text: 'Driving restrictions as per regulations' }
+          ],
+          symptoms: [
+            { text: 'x' }
+          ],
+          targets: [
+            { text: 'Duration of seizure freedom' }
+          ],
+          impact: [
+            { text: 'Teratogenicity of medication' },
+            { text: 'Driving restrictions' },
+            { text: 'Employment limitations' },
+            { text: 'Global impact of illness – before and after' },
+            { text: 'Before this diagnosis Mrs X was [what did they do / enjoy doing]; since the diagnosis [what are they no longer able to do?]' }
+          ],
+          future: [
+            { text: 'Follow up: by whom and frequency' }
+          ]
+        }
+      },
+      {
+        id: 'hiv',
+        name: 'Human Immunodeficiency Virus',
+        specialty: 'infectious_diseases',
+        modifiers: ['with undetectable viral load (if relevant)'],
+        content: {
+          diagnosis: [
+            { text: 'When acquired' },
+            { text: 'Symptoms at diagnosis (seroconversion illness at lower viral loads; opportunistic infections / AIDS-defining illnesses at higher viral loads)' },
+            { text: 'Co-infection at diagnosis (syphilis, hepatitis B / C)' },
+            { text: 'Investigations at diagnosis (CD4 count, viral load)' }
+          ],
+          risk_factors: [
+            { text: 'MSM' },
+            { text: 'IVDU / blood transfusion / needlestick injury' },
+            { text: 'Vertical transmission' }
+          ],
+          progress: [
+            { text: 'CD4 count / viral load at diagnosis' },
+            { text: 'Nadir CD4 count' },
+            { text: 'Current CD4 count / viral load' },
+            { text: 'Terminology: undetectable viral load / virological suppression' },
+            { text: 'Terminology: low-level viraemia' },
+            { text: 'Terminology: virological treatment failure / incomplete virological response' },
+            { text: 'Terminology: virological rebound' },
+            { text: 'Infections including opportunistic infections and AIDS-defining illnesses, and how these were managed' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Safe sex practices' },
+            { text: '• Partner notification and testing' },
+            { text: '• Smoking cessation and cardiovascular risk reduction' },
+            { text: 'Pharmacological management' },
+            { text: 'Combination antiretroviral therapy (ART)' },
+            { text: 'Nucleoside / nucleotide reverse transcriptase inhibitors (NRTIs) – backbone of most regimens' },
+            { text: '• Tenofovir disoproxil fumarate (TDF)' },
+            { text: '• Tenofovir alafenamide (TAF)' },
+            { text: '• Emtricitabine' },
+            { text: '• Lamivudine' },
+            { text: '• Abacavir' },
+            { text: '• Zidovudine' },
+            { text: 'Non-nucleoside reverse transcriptase inhibitors (NNRTIs)' },
+            { text: '• Efavirenz' },
+            { text: '• Nevirapine' },
+            { text: '• Rilpivirine' },
+            { text: '• Etravirine' },
+            { text: '• Doravirine' },
+            { text: 'Integrase strand transfer inhibitors (INSTIs) – first-line in most modern regimens' },
+            { text: '• Dolutegravir' },
+            { text: '• Bictegravir' },
+            { text: '• Raltegravir' },
+            { text: '• Elvitegravir' },
+            { text: 'Protease inhibitors (always boosted)' },
+            { text: '• Atazanavir' },
+            { text: '• Darunavir' },
+            { text: '• Lopinavir' },
+            { text: '• Saquinavir' },
+            { text: 'Pharmacokinetic boosters (not active ART themselves)' },
+            { text: '• Ritonavir' },
+            { text: '• Cobicistat' },
+            { text: 'Entry / fusion inhibitors (selected or resistant cases)' },
+            { text: '• Enfuvirtide' },
+            { text: '• Maraviroc' },
+            { text: 'Post-attachment monoclonal antibody' },
+            { text: '• Ibalizumab' },
+            { text: 'Capsid inhibitor' },
+            { text: '• Lenacapavir' },
+            { text: 'Prophylaxis for opportunistic infections (if indicated)' },
+            { text: '• TMP-SMX – Pneumocystis jirovecii pneumonia – CD4 <200 cells/µL' },
+            { text: '• TMP-SMX – Toxoplasma gondii (IgG positive) – CD4 <100 cells/µL' },
+            { text: '• Azithromycin / clarithromycin – Mycobacterium avium complex – CD4 <50 cells/µL' },
+            { text: '• Itraconazole – histoplasmosis (endemic areas) – CD4 <150 cells/µL' },
+            { text: 'Vaccinations (non-live where appropriate)' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: 'Complications of ART' },
+            { text: '• Gastrointestinal upset, fatigue, headache, dizziness, sleep disturbance, rash, pruritus, myalgias, arthralgias, mild transaminitis, drug–drug interactions' },
+            { text: '• Neuropsychiatric symptoms (efavirenz)' },
+            { text: '• Lipodystrophy, weight gain, dyslipidaemia, insulin resistance (protease inhibitors)' },
+            { text: '• Osteoporosis and mild creatinine rise (tenofovir disoproxil fumarate)' },
+            { text: '• Injection or infusion site reactions (injectable agents)' },
+            { text: 'Complications of disease' },
+            { text: '• Opportunistic infections' },
+            { text: '• AIDS-defining malignancies' },
+            { text: '• HIV-associated neurocognitive disorder' },
+            { text: '• Chronic kidney disease' },
+            { text: '• Cardiovascular disease' },
+            { text: '• Osteoporosis' },
+            { text: '• Peripheral neuropathy' }
+          ],
+          function: [
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Inform sexual partners' },
+            { text: 'IVDU' },
+            { text: 'Pharmacological – PrEP, PEP' },
+            { text: 'Non-pharmacological – barrier protection' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          targets: [
+            { text: 'Current CD4 count / viral load' }
+          ],
+          impact: [
+            { text: 'Sexual partner serostatus (serodiscordance)' },
+            { text: 'Disclosure to friends and family' },
+            { text: 'Social stigma' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' }
+          ]
+        }
+      },
+      {
+        id: 'copd',
+        name: 'Chronic Obstructve Pulmonary Disease',
+        specialty: 'respiratory',
+        modifiers: ['Mild', 'Moderate', 'Severe', 'Very Severe (if spirometric staging is known)', 'Chronic bronchitis', 'Emphysema', 'Asthma–COPD overlap (if dominant pathological pattern is known)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: '• Dyspnoea (mMRC grade)' },
+            { text: '• Infective vs non-infective exacerbations at presentation' },
+            { text: 'Investigations at diagnosis' },
+            { text: '• Pulmonary function tests' },
+            { text: '• Chest X-ray' },
+            { text: '• CT chest' }
+          ],
+          risk_factors: [
+            { text: 'Smoking' },
+            { text: 'Alpha-1 antitrypsin deficiency' },
+            { text: 'Occupational or environmental exposure (bushfires, mining, construction)' }
+          ],
+          progress: [
+            { text: 'Change in exercise tolerance since diagnosis (mMRC grading)' },
+            { text: 'Number of exacerbations' },
+            { text: '• Infective vs non-infective' },
+            { text: 'Number of hospital admissions' },
+            { text: '• Ward vs ICU' },
+            { text: 'Cumulative steroid exposure during exacerbations' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Smoking cessation' },
+            { text: '• Pulmonary rehabilitation' },
+            { text: '• Immunisations' },
+            { text: '• Nutrition and BMI optimisation' },
+            { text: 'Pharmacological management' },
+            { text: '• SABA / SAMA' },
+            { text: '• LABA / LAMA' },
+            { text: '• Inhaled corticosteroids' },
+            { text: '• Oral prednisolone (if required)' },
+            { text: 'Other management' },
+            { text: '• Long-term oxygen therapy (if relevant)' },
+            { text: '• COPD action plan' },
+            { text: '• Palliative care input / symptom management' },
+            { text: 'Surgical management' },
+            { text: '• Lung volume reduction surgery' },
+            { text: '• Lung transplantation (if applicable)' }
+          ],
+          complications: [
+            { text: 'Complications of disease' },
+            { text: '• Infective and non-infective exacerbations' },
+            { text: '• Cor pulmonale' },
+            { text: '• Pulmonary hypertension' },
+            { text: '• Pneumothoraces' },
+            { text: '• Cachexia' },
+            { text: 'Complications of management' },
+            { text: '• Steroid-related complications' },
+            { text: '• Oxygen-related risks (eg hypercapnia)' }
+          ],
+          function: [
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological adherence (inhaler technique, regularity)' },
+            { text: 'Non-pharmacological adherence' },
+            { text: 'Pulmonary rehabilitation' },
+            { text: 'Smoking cessation' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Exercise tolerance / mMRC dyspnoea grade' },
+            { text: 'Chronic cough' },
+            { text: 'Productive vs non-productive' },
+            { text: 'Colour and volume of sputum' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' },
+            { text: 'Advance care planning' },
+            { text: 'Transplant candidacy (if appropriate)' }
+          ]
+        }
+      },
+      {
+        id: 'ild',
+        name: 'Interstital Lung Disease',
+        specialty: 'respiratory',
+        modifiers: ['Further subtype if known (eg IPF', 'UIP', 'NSIP', 'CTD-ILD)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: '• Dyspnoea (mMRC grade)' },
+            { text: '• Cough' },
+            { text: 'Investigations at diagnosis' },
+            { text: '• Pulmonary function tests' },
+            { text: '• Chest X-ray' },
+            { text: '• CT chest' }
+          ],
+          risk_factors: [
+            { text: 'Connective tissue disease (systemic sclerosis, RA, myositis)' },
+            { text: 'Environmental exposure (birds, moulds)' },
+            { text: 'Occupational exposure (silica, asbestos, mining, construction)' },
+            { text: 'Drug-induced (methotrexate, amiodarone, nitrofurantoin)' },
+            { text: 'Smoking-related' }
+          ],
+          progress: [
+            { text: 'Time since diagnosis' },
+            { text: 'Rate of symptom progression' },
+            { text: 'Change in exercise tolerance' },
+            { text: 'Lung function decline (FVC, DLCO trends)' },
+            { text: 'Acute exacerbations' },
+            { text: 'Radiological progression' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Drug cessation' },
+            { text: '• Exposure avoidance' },
+            { text: '• Smoking cessation' },
+            { text: '• Pulmonary rehabilitation' },
+            { text: '• Oxygen therapy (if hypoxic)' },
+            { text: 'Pharmacological management' },
+            { text: '• Antifibrotic therapy (eg pirfenidone, nintedanib)' },
+            { text: '• Immunosuppression (eg steroid, mycophenolate mofetil, azathioprine, cyclophosphamide, rituximab, tocilizumab)' },
+            { text: '• Vaccinations' },
+            { text: 'Other management' },
+            { text: '• Multidisciplinary ILD team involvement' },
+            { text: '• Palliative care input for symptom management' },
+            { text: 'Surgical management' },
+            { text: '• Lung transplantation (selected patients)' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: '• Antifibrotics – gastrointestinal upset (nausea, diarrhoea, anorexia), weight loss, fatigue, hepatotoxicity' },
+            { text: '• Immunosuppression – steroid side effects, infection, hepatotoxicity, pancreatitis, bone marrow suppression' },
+            { text: 'Complications of disease' },
+            { text: '• Acute exacerbations' },
+            { text: '• Pulmonary hypertension' },
+            { text: '• Cor pulmonale' }
+          ],
+          function: [
+            { text: 'Exercise tolerance' },
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Exercise tolerance' },
+            { text: 'Dyspnoea' },
+            { text: 'Cough' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' },
+            { text: 'Advance care planning' },
+            { text: 'Transplant referral if appropriate' }
+          ]
+        }
+      },
+      {
+        id: 'cf',
+        name: 'Cystic Fibrosis',
+        specialty: 'respiratory',
+        content: {
+          diagnosis: [
+            { text: 'Often diagnosed at birth via newborn screening' },
+            { text: 'Diagnosed in infancy (meconium ileus, failure to thrive)' },
+            { text: 'Later presentation with recurrent respiratory infections, malabsorption, or infertility' }
+          ],
+          aetiology: [
+            { text: 'Genetic mutation if known (ΔF508 most common)' }
+          ],
+          risk_factors: [
+            { text: 'Caucasian ethnicity' },
+            { text: 'Family history of cystic fibrosis' },
+            { text: 'Carrier parents (1 in 25 Caucasians are carriers)' }
+          ],
+          progress: [
+            { text: 'Frequency of lower respiratory tract infections' },
+            { text: 'Lung function trajectory' },
+            { text: 'Exercise tolerance' },
+            { text: 'Number of hospital admissions' },
+            { text: 'Development of extrapulmonary complications' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Physiotherapy and airway clearance techniques' },
+            { text: '• Deep breathing, coughing, percussion' },
+            { text: '• Postural drainage, huffing, PEP' },
+            { text: '• Regular aerobic exercise' },
+            { text: '• High-energy diet with fat-soluble vitamin supplementation' },
+            { text: '• Salt supplementation' },
+            { text: '• Parenteral feeding if required' },
+            { text: 'Pharmacological management' },
+            { text: '• Immunisations' },
+            { text: '• Inhaled therapies' },
+            { text: '• Dornase alfa' },
+            { text: '• Hypertonic saline' },
+            { text: '• Mannitol' },
+            { text: '• Bronchodilators' },
+            { text: '• Long-term azithromycin (anti-inflammatory effect)' },
+            { text: '• Antimicrobials' },
+            { text: '• Surveillance sputum cultures' },
+            { text: '• Early eradication of Pseudomonas aeruginosa (eg inhaled tobramycin)' },
+            { text: 'CFTR modulator therapy (mutation-specific)' },
+            { text: '• Lumacaftor, tezacaftor, elexacaftor' },
+            { text: '• Ivacaftor' },
+            { text: 'Surgical management' },
+            { text: '• Lung transplantation (selected patients with advanced disease)' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: '• Line-related complications' },
+            { text: '• Gastrointestinal upset (abdominal pain, nausea, diarrhoea), hepatotoxicity, headache/fatigue, rash, chest tightness or dyspnoea (early in treatment), weight gain, upper respiratory symptoms, drug–drug interactions' },
+            { text: 'Complications of disease' },
+            { text: 'Respiratory' },
+            { text: '• Bronchiectasis' },
+            { text: '• Recurrent lower respiratory tract infections' },
+            { text: '• Colonisation with Pseudomonas, Staphylococcus aureus, Haemophilus influenzae, Aspergillus' },
+            { text: '• Haemoptysis' },
+            { text: '• Pneumothorax' },
+            { text: '• Allergic bronchopulmonary aspergillosis (ABPA)' },
+            { text: 'ENT' },
+            { text: '• Chronic sinusitis' },
+            { text: '• Nasal polyps' },
+            { text: 'Endocrine / metabolic' },
+            { text: '• CF-related diabetes mellitus' },
+            { text: 'Gastrointestinal / nutritional' },
+            { text: '• Pancreatic exocrine insufficiency' },
+            { text: '• Malabsorption and malnutrition' },
+            { text: '• Distal intestinal obstruction syndrome' },
+            { text: '• GORD' },
+            { text: '• Increased risk of bowel malignancy' },
+            { text: 'Hepatobiliary' },
+            { text: '• Biliary cirrhosis' },
+            { text: '• Cholelithiasis' },
+            { text: 'Musculoskeletal' },
+            { text: '• Osteoporosis' },
+            { text: '• CF-related arthropathy' },
+            { text: 'Renal' },
+            { text: '• Nephrolithiasis' },
+            { text: '• Nephrocalcinosis' },
+            { text: 'Reproductive' },
+            { text: '• Male infertility' },
+            { text: '• Female infertility (~15%)' }
+          ],
+          function: [
+            { text: 'Exercise tolerance' },
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Exercise tolerance' },
+            { text: 'Dyspnoea' },
+            { text: 'Cough' }
+          ],
+          impact: [
+            { text: 'Impact on schooling, work, independence' },
+            { text: 'Genetic counselling / family planning' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' },
+            { text: 'Transplant referral if appropriate' },
+            { text: 'Advanced care planning' }
+          ]
+        }
+      },
+      {
+        id: 'ibd',
+        name: 'Inflammatory Bowel Disease',
+        specialty: 'gastroenterology',
+        modifiers: ['Ulcerative colitis (if known specify: proctitis', 'left-sided', 'pancolitis', 'with associated PSC)', 'Crohn’s disease (if known specify: anatomical location', 'inflammatory', 'structuring', 'penetrating', 'fistulising)'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis (diarrhoea, abdominal pain, haematochezia, weight loss, tenesmus)' },
+            { text: 'Investigations at diagnosis (faecal calprotectin, colonoscopy)' }
+          ],
+          risk_factors: [
+            { text: 'Family history' },
+            { text: 'Caucasian ethnicity' },
+            { text: 'Smoking history (for Crohn’s); smoking cessation (for UC)' },
+            { text: 'Primary sclerosing cholangitis' },
+            { text: 'HLA-B27 association (for UC)' }
+          ],
+          management: [
+            { text: 'Crohn’s disease' },
+            { text: 'Non-pharmacological management' },
+            { text: '• Smoking cessation' },
+            { text: '• Exclusive enteral nutrition' },
+            { text: 'Pharmacological management' },
+            { text: 'Mild–moderate disease' },
+            { text: '• Steroids' },
+            { text: '• Azathioprine / mycophenolate' },
+            { text: '• Methotrexate' },
+            { text: 'Severe disease' },
+            { text: '• Anti-TNF' },
+            { text: '• Vedolizumab' },
+            { text: '• Ustekinumab' },
+            { text: 'Surgical management' },
+            { text: '• Reserved for complications' },
+            { text: '• Fistulae' },
+            { text: '• Strictures / obstruction' },
+            { text: '• Not curative' },
+            { text: 'Ulcerative colitis' },
+            { text: 'Non-pharmacological management' },
+            { text: '• Exclusive enteral nutrition (selected cases)' },
+            { text: 'Pharmacological management' },
+            { text: 'Mild–moderate disease' },
+            { text: '• 5-ASA (mesalazine, sulfasalazine)' },
+            { text: '• Steroids' },
+            { text: '• Azathioprine / mycophenolate' },
+            { text: 'Severe disease' },
+            { text: '• Anti-TNF' },
+            { text: '• Vedolizumab' },
+            { text: '• Cyclosporine (induction for ASUC)' },
+            { text: 'Surgical management' },
+            { text: '• Colectomy – curative' }
+          ],
+          complications: [
+            { text: 'Complications of management' },
+            { text: '• Infection' },
+            { text: '• Malignancy' },
+            { text: '• Osteoporosis' },
+            { text: '• Cytopenias' },
+            { text: '• Hepatotoxicity' },
+            { text: '• Infusion / injection reactions' },
+            { text: 'Complications of disease' },
+            { text: 'Intestinal – Crohn’s disease' },
+            { text: '• Fistulae, strictures, abscesses' },
+            { text: '• Perianal disease' },
+            { text: '• Colorectal cancer' },
+            { text: '• Malabsorption, osteoporosis, anaemia' },
+            { text: 'Intestinal – ulcerative colitis' },
+            { text: '• Acute severe ulcerative colitis' },
+            { text: '• Toxic megacolon' },
+            { text: '• Colorectal cancer' },
+            { text: '• Malabsorption, osteoporosis, anaemia' },
+            { text: 'Extra-intestinal' },
+            { text: '• Joints – peripheral, large joints, sacroiliitis' },
+            { text: '• Skin – erythema nodosum, pyoderma gangrenosum' },
+            { text: '• Eyes – episcleritis, anterior uveitis' }
+          ],
+          function: [
+            { text: 'pADLs including stoma management' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          symptoms: [
+            { text: 'Stool frequency and urgency; number of bowel motions per day; presence or absence of blood' },
+            { text: 'Fatigue' },
+            { text: 'Weight loss' },
+            { text: 'Abdominal pain' },
+            { text: 'Extra-intestinal symptoms' }
+          ],
+          impact: [
+            { text: 'Faecal incontinence' },
+            { text: 'Stoma management' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' },
+            { text: 'Is a stoma being considered' }
+          ]
+        }
+      },
+      {
+        id: 'cld',
+        name: 'Chronic Liver Disease',
+        specialty: 'gastroenterology',
+        modifiers: ['List aetiology (if known)', 'Compensated vs Decompensated', 'with or without Cirrhosis'],
+        content: {
+          diagnosis: [
+            { text: 'When diagnosed' },
+            { text: 'Symptoms at diagnosis' },
+            { text: 'Investigations at diagnosis (LFTs, INR, albumin, platelets, liver ultrasound ± FibroScan, liver biopsy)' }
+          ],
+          aetiology: [
+            { text: 'Haemochromatosis' },
+            { text: 'Autoimmune' },
+            { text: 'Metabolic' },
+            { text: 'Drugs' },
+            { text: 'Wilson’s disease' },
+            { text: 'Alpha-1 antitrypsin deficiency' },
+            { text: 'Viral hepatitis' },
+            { text: 'Alcohol-related (EtOH)' },
+            { text: 'Budd–Chiari syndrome' }
+          ],
+          progress: [
+            { text: 'Episodes of decompensation and trigger' },
+            { text: 'Hospital admissions' },
+            { text: 'Development of fibrosis and cirrhosis' }
+          ],
+          management: [
+            { text: 'Non-pharmacological management' },
+            { text: '• Alcohol abstinence' },
+            { text: '• High-energy high-protein diet' },
+            { text: '• Low salt diet' },
+            { text: '• Fluid restriction' },
+            { text: '• Low caloric diet, exercise, weight loss' },
+            { text: '• Vaccinations' },
+            { text: 'Pharmacological management' },
+            { text: '• Treatment of underlying cause (eg tenofovir or entecavir for hepatitis B)' }
+          ],
+          complications: [
+            { text: 'Complications of disease' },
+            { text: '• Pruritus' },
+            { text: '• Oestrogen-related effects (amenorrhoea, gynaecomastia, testicular atrophy)' },
+            { text: '• Bleeding' },
+            { text: '• Sarcopaenia' },
+            { text: '• Osteoporosis (screening and treatment)' },
+            { text: '• Hepatocellular carcinoma (surveillance and previous treatment)' },
+            { text: '• Varices (surveillance and previous treatment)' },
+            { text: '• Ascites (management: MRA, frusemide, ascitic taps, TIPS)' },
+            { text: '• Spontaneous bacterial peritonitis (norfloxacin or TMP-SMX prophylaxis)' },
+            { text: '• Hepatic encephalopathy (lactulose)' },
+            { text: '• Portal vein thrombosis' },
+            { text: '• Hepatorenal syndrome' }
+          ],
+          function: [
+            { text: 'pADLs' },
+            { text: 'dADLs' },
+            { text: 'cADLs' }
+          ],
+          adherence: [
+            { text: 'Pharmacological' },
+            { text: 'Non-pharmacological' },
+            { text: 'Understanding of illness and insight' }
+          ],
+          future: [
+            { text: 'Follow up – by whom and when' },
+            { text: 'Transplant candidate' }
+          ]
+        }
+      }
+    ];
+
+    // ============================================
+    // ICONS
+    // ============================================
+
+    const ChevronIcon = ({ isOpen, size = 20 }) => (
+      <svg width={size} height={size} viewBox="0 0 20 20" fill="none" style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0)', transition: 'transform 0.2s ease' }}>
+        <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const BackIcon = () => (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M15 19L8 12L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const CheckIcon = () => (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const ArrowDownIcon = () => (
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M7 2V12M7 12L3 8M7 12L11 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const BookIcon = ({ size = 18 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const LinkIcon = ({ size = 14 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M15 3H21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M10 14L21 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const PlayIcon = ({ size = 14 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"/>
+        <path d="M10 8L16 12L10 16V8Z" fill="currentColor"/>
+      </svg>
+    );
+    const FileIcon = ({ size = 14 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M14 2V8H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+    const CloseIcon = ({ size = 20 }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    );
+
+    const getResourceIcon = (type) => {
+      switch(type) {
+        case 'video': return <PlayIcon />;
+        case 'guideline': return <FileIcon />;
+        default: return <LinkIcon />;
+      }
+    };
+
+    const getResourceColor = (type) => {
+      switch(type) {
+        case 'video': return '#FF3B30';
+        case 'guideline': return '#FF9500';
+        default: return 'var(--accent-blue)';
+      }
+    };
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+
+    const getAllResources = (condition) => {
+      if (!condition?.content) return [];
+      const resources = [];
+      // Add condition-level resources
+      if (condition.resources) {
+        condition.resources.forEach(r => resources.push({ ...r, section: 'overview' }));
+      }
+      // Add item-level resources
+      Object.entries(condition.content).forEach(([sectionId, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach(item => {
+            if (item.resources?.length) {
+              item.resources.forEach(r => resources.push({ ...r, section: sectionId }));
+            }
+          });
+        }
+      });
+      return resources;
+    };
+
+    const sectionHasContent = (section, condition) => {
+      if (!condition?.content) return section.prompts?.length > 0;
+      const content = condition.content[section.id];
+      if (content?.length > 0) return true;
+      return section.prompts?.length > 0;
+    };
+
+    // ============================================
+    // RESOURCES MODAL
+    // ============================================
+
+    const ResourcesModal = ({ isOpen, onClose, resources, conditionName }) => {
+      if (!isOpen) return null;
+      return (
+        <div onClick={onClose} style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+          zIndex: 1000, animation: 'fadeIn 0.2s ease'
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '16px 16px 0 0', width: '100%', maxWidth: '500px',
+            maxHeight: '80vh', display: 'flex', flexDirection: 'column', animation: 'slideIn 0.3s ease'
+          }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '600' }}>All Resources</h3>
+              <button onClick={onClose} style={{ padding: '4px', color: 'var(--text-secondary)' }}><CloseIcon /></button>
+            </div>
+            <div style={{ padding: '16px 20px', overflowY: 'auto', flex: 1 }}>
+              {resources.length === 0 ? (
+                <p style={{ margin: 0, color: 'var(--text-tertiary)', textAlign: 'center', padding: '20px', fontStyle: 'italic' }}>No resources available</p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {resources.map((r, i) => (
+                    <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{
+                      display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px',
+                      background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)',
+                      textDecoration: 'none', color: 'var(--text-primary)'
+                    }}>
+                      <span style={{
+                        width: '32px', height: '32px', borderRadius: '8px',
+                        background: getResourceColor(r.type), color: 'white',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}>{getResourceIcon(r.type)}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '14px', fontWeight: '500', marginBottom: '2px' }}>{r.title}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{r.type}{r.duration ? ` • ${r.duration}` : ''}</div>
+                      </div>
+                      <LinkIcon size={16} />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
+    // MODIFIER MODAL
+    // ============================================
+
+    const ModifierModal = ({ isOpen, onClose, modifiers, conditionName }) => {
+      if (!isOpen || !modifiers?.length) return null;
+      return (
+        <div onClick={onClose} style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, animation: 'fadeIn 0.2s ease', padding: '24px'
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '20px', width: '100%', maxWidth: '340px',
+            maxHeight: '70vh', display: 'flex', flexDirection: 'column', animation: 'scaleIn 0.25s ease',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '600' }}>Subtypes & Modifiers</h3>
+              <button onClick={onClose} style={{ padding: '4px', color: 'var(--text-secondary)', borderRadius: '50%', background: 'var(--bg-secondary)', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloseIcon size={16} /></button>
+            </div>
+            <div style={{ padding: '12px 16px 20px', overflowY: 'auto', flex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {modifiers.map((m, i) => (
+                  <div key={i} style={{
+                    padding: '14px 16px',
+                    background: 'var(--bg-tertiary)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    color: 'var(--text-primary)',
+                    lineHeight: '1.4'
+                  }}>{m}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
+    // CHECKBOX COMPONENT
+    // ============================================
+
+    const ContentItem = ({ checked, onChange, label, resources = [] }) => {
+      // Detect if this is a subheading (ends with ":" and doesn't start with "•")
+      // or a child item (starts with "•")
+      const trimmedLabel = label.trim();
+      const isSubheading = trimmedLabel.endsWith(':') && !trimmedLabel.startsWith('•');
+      const isChildItem = trimmedLabel.startsWith('•');
+      
+      // Clean up the label - remove the bullet if present
+      const displayLabel = isChildItem ? trimmedLabel.substring(1).trim() : trimmedLabel;
+      
+      // Subheadings: bold text, no checkbox, not interactive
+      if (isSubheading) {
+        return (
+          <div style={{ 
+            padding: '14px 14px 6px 14px',
+            marginTop: '8px'
+          }}>
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: 'var(--text-primary)',
+              lineHeight: '1.4'
+            }}>{displayLabel}</span>
+          </div>
+        );
+      }
+      
+      // Child items: indented with bullet
+      if (isChildItem) {
+        return (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'flex-start', 
+            gap: '12px', 
+            padding: '10px 14px 10px 28px', 
+            background: checked ? 'rgba(0,122,255,0.04)' : 'transparent', 
+            borderRadius: 'var(--radius-sm)' 
+          }}>
+            <button onClick={onChange} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left', padding: 0 }}>
+              <span style={{
+                width: '20px', height: '20px', minWidth: '20px', borderRadius: '5px',
+                border: checked ? 'none' : '2px solid var(--border-medium)',
+                background: checked ? 'var(--accent-blue)' : 'white',
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                {checked && <span style={{ animation: 'checkPop 0.2s ease' }}><CheckIcon /></span>}
+              </span>
+              <span style={{
+                flex: 1, fontSize: '14px', lineHeight: '1.4',
+                color: checked ? 'var(--text-secondary)' : 'var(--text-primary)',
+                textDecoration: checked ? 'line-through' : 'none'
+              }}>{displayLabel}</span>
+            </button>
+            {resources.length > 0 && (
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {resources.map((r, i) => (
+                  <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{
+                    width: '26px', height: '26px', borderRadius: '6px',
+                    background: getResourceColor(r.type), color: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    textDecoration: 'none'
+                  }} title={r.title}>{getResourceIcon(r.type)}</a>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      }
+      
+      // Regular items: normal checkbox
+      return (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'flex-start', 
+          gap: '12px', 
+          padding: '12px 14px', 
+          background: checked ? 'rgba(0,122,255,0.04)' : 'transparent', 
+          borderRadius: 'var(--radius-sm)' 
+        }}>
+          <button onClick={onChange} style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, textAlign: 'left', padding: 0 }}>
+            <span style={{
+              width: '22px', height: '22px', minWidth: '22px', borderRadius: '6px',
+              border: checked ? 'none' : '2px solid var(--border-medium)',
+              background: checked ? 'var(--accent-blue)' : 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'center'
+            }}>
+              {checked && <span style={{ animation: 'checkPop 0.2s ease' }}><CheckIcon /></span>}
+            </span>
+            <span style={{
+              flex: 1, fontSize: '15px', lineHeight: '1.4',
+              color: checked ? 'var(--text-secondary)' : 'var(--text-primary)',
+              textDecoration: checked ? 'line-through' : 'none'
+            }}>{displayLabel}</span>
+          </button>
+          {resources.length > 0 && (
+            <div style={{ display: 'flex', gap: '4px' }}>
+              {resources.map((r, i) => (
+                <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{
+                  width: '28px', height: '28px', borderRadius: '6px',
+                  background: getResourceColor(r.type), color: 'white',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  textDecoration: 'none'
+                }} title={r.title}>{getResourceIcon(r.type)}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+    
+    // Alias for backward compatibility
+    const Checkbox = ContentItem;
+
+    // ============================================
+    // MAIN SECTION
+    // ============================================
+
+    const MainSection = ({ section, content, isOpen, onToggle, checked, onCheck, delay = 0, disabled = false }) => {
+      const items = content?.length ? content : section.prompts?.map(p => ({ text: p, resources: [] })) || [];
+      
+      // Show heading without dropdown if no content
+      if (disabled) {
+        return (
+          <div style={{ animation: `slideUp 0.3s ease ${delay}s forwards`, opacity: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: '1px solid var(--border-light)' }}>
+              {section.letter && (
+                <span style={{ width: '42px', height: '42px', borderRadius: '11px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '19px', flexShrink: 0 }}>{section.letter}</span>
+              )}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-secondary)' }}>{section.name}</div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      
+      return (
+        <div style={{ animation: `slideUp 0.3s ease ${delay}s forwards`, opacity: 0 }}>
+          <button onClick={onToggle} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: isOpen ? 'none' : '1px solid var(--border-light)', textAlign: 'left' }}>
+            {section.letter && (
+              <span style={{
+                width: '42px', height: '42px', borderRadius: '11px',
+                background: isOpen ? 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)' : 'var(--bg-secondary)',
+                color: isOpen ? 'white' : 'var(--text-primary)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: '600', fontSize: '19px', flexShrink: 0,
+                transition: 'all 0.2s ease', boxShadow: isOpen ? 'var(--shadow-md)' : 'none'
+              }}>{section.letter}</span>
+            )}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>{section.name}</div>
+            </div>
+            <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={isOpen} /></span>
+          </button>
+          {isOpen && (
+            <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: '6px', marginBottom: '12px', animation: 'scaleIn 0.2s ease' }}>
+              {items.map((item, i) => (
+                <Checkbox key={i} checked={checked[`${section.id}-${i}`]} onChange={() => onCheck(section.id, i)} label={item.text || item} resources={item.resources || []} />
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // ============================================
+    // BRIDGE SECTION (Progress)
+    // ============================================
+
+    const BridgeSection = ({ section, content, isOpen, onToggle, checked, onCheck, disabled = false }) => {
+      const items = content?.length ? content : section.prompts?.map(p => ({ text: p, resources: [] })) || [];
+      
+      // Don't render anything if no content
+      if (disabled) {
+        return null;
+      }
+      
+      return (
+        <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '2px dashed var(--accent-blue)', position: 'relative', animation: 'slideUp 0.3s ease 0.08s forwards', opacity: 0 }}>
+          <div style={{ position: 'absolute', left: '-8px', top: '20px', width: '14px', height: '14px', borderRadius: '50%', background: 'var(--accent-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><ArrowDownIcon /></div>
+          <button onClick={onToggle} style={{
+            width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px',
+            background: isOpen ? 'rgba(0,122,255,0.08)' : 'rgba(0,122,255,0.04)',
+            border: '1px solid rgba(0,122,255,0.15)', borderRadius: 'var(--radius-sm)', textAlign: 'left'
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--accent-blue)' }}>{section.name}</div>
+            </div>
+            <span style={{ color: 'var(--accent-blue)' }}><ChevronIcon isOpen={isOpen} size={16} /></span>
+          </button>
+          {isOpen && (
+            <div style={{ background: 'white', borderRadius: 'var(--radius-sm)', padding: '6px', marginTop: '6px', border: '1px solid var(--border-light)', animation: 'scaleIn 0.15s ease' }}>
+              {items.map((item, i) => <Checkbox key={i} checked={checked[`${section.id}-${i}`]} onChange={() => onCheck(section.id, i)} label={item.text || item} resources={item.resources || []} />)}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // ============================================
+    // SIDEBAR SECTION (FASTI) - No "Current Status" header, just DARNFASTIF acronym
+    // ============================================
+
+    const SidebarSection = ({ condition, open, onToggle, checked, onCheck }) => {
+      const sidebarItems = algorithmSections.filter(s => s.type === 'sidebar-item');
+      // Only show items that have content
+      const itemsWithContent = sidebarItems.filter(item => sectionHasContent(item, condition));
+      
+      if (itemsWithContent.length === 0) {
+        return null; // Don't render anything if no content
+      }
+      
+      return (
+        <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '3px solid var(--accent-green)', position: 'relative', animation: 'slideUp 0.3s ease 0.12s forwards', opacity: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {itemsWithContent.map(item => {
+              const itemOpen = open[item.id];
+              const items = condition?.content?.[item.id] || item.prompts?.map(p => ({ text: p, resources: [] })) || [];
+              
+              return (
+                <div key={item.id}>
+                  <button onClick={() => onToggle(item.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'white', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', textAlign: 'left' }}>
+                    <span style={{
+                      width: '26px', height: '26px', borderRadius: '7px',
+                      background: itemOpen ? 'var(--accent-green)' : 'var(--bg-secondary)',
+                      color: itemOpen ? 'white' : 'var(--text-secondary)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '600', fontSize: '13px', transition: 'all 0.15s ease'
+                    }}>{item.letter}</span>
+                    <span style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>{item.name}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={itemOpen} size={14} /></span>
+                  </button>
+                  {itemOpen && items.length > 0 && (
+                    <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '4px', marginTop: '4px', animation: 'scaleIn 0.12s ease' }}>
+                      {items.map((p, i) => <Checkbox key={i} checked={checked[`${item.id}-${i}`]} onChange={() => onCheck(item.id, i)} label={p.text || p} resources={p.resources || []} />)}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
+    // NOW SECTION
+    // ============================================
+
+    const NowSection = ({ section, condition, isOpen, onToggle, open, onToggleSub, checked, onCheck }) => {
+      const children = algorithmSections.filter(s => s.parent === 'now');
+      // Only show children that have content
+      const childrenWithContent = children.filter(child => sectionHasContent(child, condition));
+      
+      // Don't render anything if no content
+      if (childrenWithContent.length === 0) {
+        return null;
+      }
+      
+      return (
+        <div style={{ animation: 'slideUp 0.3s ease 0.1s forwards', opacity: 0 }}>
+          <button onClick={onToggle} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: isOpen ? 'none' : '1px solid var(--border-light)', textAlign: 'left' }}>
+            <span style={{
+              width: '42px', height: '42px', borderRadius: '11px',
+              background: isOpen ? 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)' : 'var(--bg-secondary)',
+              color: isOpen ? 'white' : 'var(--text-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontWeight: '600', fontSize: '19px', flexShrink: 0,
+              transition: 'all 0.2s ease', boxShadow: isOpen ? 'var(--shadow-md)' : 'none'
+            }}>{section.letter}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>{section.name}</div>
+            </div>
+            <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={isOpen} /></span>
+          </button>
+          {isOpen && (
+            <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: '10px', marginBottom: '12px', animation: 'scaleIn 0.2s ease' }}>
+              {childrenWithContent.map(child => {
+                const childOpen = open[child.id];
+                const items = condition?.content?.[child.id] || child.prompts?.map(p => ({ text: p, resources: [] })) || [];
+                
+                return (
+                  <div key={child.id} style={{ marginBottom: '6px' }}>
+                    <button onClick={() => onToggleSub(child.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: 'white', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', textAlign: 'left' }}>
+                      <span style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>{child.name}</span>
+                      <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={childOpen} size={16} /></span>
+                    </button>
+                    {childOpen && items.length > 0 && (
+                      <div style={{ background: 'white', borderRadius: 'var(--radius-sm)', padding: '4px', marginTop: '4px', border: '1px solid var(--border-light)' }}>
+                        {items.map((p, i) => <Checkbox key={i} checked={checked[`${child.id}-${i}`]} onChange={() => onCheck(child.id, i)} label={p.text || p} resources={p.resources || []} />)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // ============================================
+    // CONDITION VIEW
+    // ============================================
+
+    const ConditionView = ({ condition, onBack }) => {
+      const [open, setOpen] = useState({});
+      const [checked, setChecked] = useState({});
+      const [showResources, setShowResources] = useState(false);
+      const [showModifiers, setShowModifiers] = useState(false);
+      
+      const toggle = (id) => setOpen(p => ({ ...p, [id]: !p[id] }));
+      const check = (sec, idx) => setChecked(p => ({ ...p, [`${sec}-${idx}`]: !p[`${sec}-${idx}`] }));
+      
+      const allResources = useMemo(() => getAllResources(condition), [condition]);
+      const specialty = specialties.find(s => s.id === condition?.specialty);
+      
+      const expandableSections = useMemo(() => {
+        const ids = [];
+        algorithmSections.forEach(s => {
+          if (s.type === 'main' && !s.hasChildren && sectionHasContent(s, condition)) ids.push(s.id);
+          if (s.type === 'bridge' && sectionHasContent(s, condition)) ids.push(s.id);
+          if (s.id === 'now') {
+            const children = algorithmSections.filter(c => c.parent === 'now');
+            if (children.some(c => sectionHasContent(c, condition))) {
+              ids.push('now');
+              children.forEach(c => { if (sectionHasContent(c, condition)) ids.push(c.id); });
+            }
+          }
+          if (s.type === 'sidebar') {
+            const items = algorithmSections.filter(i => i.type === 'sidebar-item');
+            if (items.some(i => sectionHasContent(i, condition))) {
+              ids.push('current_status');
+              items.forEach(i => { if (sectionHasContent(i, condition)) ids.push(i.id); });
+            }
+          }
+        });
+        return ids;
+      }, [condition]);
+      
+      const expandAll = () => {
+        const newOpen = {};
+        expandableSections.forEach(id => newOpen[id] = true);
+        setOpen(newOpen);
+      };
+      
+      const collapseAll = () => setOpen({});
+      
+      const isAllExpanded = expandableSections.length > 0 && expandableSections.every(id => open[id]);
+      
+      const mainBefore = algorithmSections.filter(s => s.type === 'main' && ['diagnosis','aetiology','risk_factors'].includes(s.id));
+      const bridge = algorithmSections.find(s => s.type === 'bridge');
+      const now = algorithmSections.find(s => s.id === 'now');
+      const future = algorithmSections.find(s => s.id === 'future');
+      const completedCount = Object.values(checked).filter(Boolean).length;
+
+      return (
+        <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+          <div style={{
+            position: 'sticky', top: 0, zIndex: 100, background: 'rgba(255,255,255,0.85)',
+            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid var(--border-light)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 16px', maxWidth: '600px', margin: '0 auto' }}>
+              <button onClick={onBack} style={{ padding: '6px', margin: '-6px', color: 'var(--accent-blue)', borderRadius: '6px' }}><BackIcon /></button>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '2px' }}>
+                  <span style={{ fontWeight: '600' }}>{specialty?.name}</span>
+                  <span style={{ margin: '0 6px', color: 'var(--text-tertiary)' }}>›</span>
+                  <span>{condition?.name}</span>
+                </div>
+                <h1 style={{ margin: 0, fontSize: '17px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {condition?.name || 'Framework'}
+                </h1>
+              </div>
+              {completedCount > 0 && (
+                <span style={{ background: 'var(--accent-blue)', color: 'white', padding: '3px 9px', borderRadius: '10px', fontSize: '13px', fontWeight: '600' }}>
+                  {completedCount}
+                </span>
+              )}
+              <button onClick={isAllExpanded ? collapseAll : expandAll} style={{
+                padding: '6px 10px', background: 'var(--bg-secondary)', borderRadius: '8px',
+                fontSize: '13px', fontWeight: '500', color: 'var(--text-secondary)'
+              }}>
+                {isAllExpanded ? 'Collapse' : 'Expand'}
+              </button>
+            </div>
+            
+            <div style={{ padding: '0 16px 10px', maxWidth: '600px', margin: '0 auto' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                {condition?.modifiers?.length > 0 && (
+                  <button onClick={() => setShowModifiers(true)} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px',
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border-light)',
+                    borderRadius: '20px', fontSize: '13px', fontWeight: '500', color: 'var(--text-secondary)',
+                    flex: 1, justifyContent: 'space-between', maxWidth: '280px'
+                  }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      Heading Modifiers
+                    </span>
+                    <ChevronIcon isOpen={false} size={14} />
+                  </button>
+                )}
+                {allResources.length > 0 && (
+                  <button onClick={() => setShowResources(true)} style={{
+                    display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 12px',
+                    background: 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)', 
+                    borderRadius: '20px', color: 'white', flexShrink: 0,
+                    boxShadow: '0 2px 8px rgba(255, 149, 0, 0.3)'
+                  }}>
+                    <BookIcon size={14} />
+                    <span style={{ fontSize: '13px', fontWeight: '600' }}>Resources</span>
+                    <span style={{ background: 'rgba(255,255,255,0.3)', padding: '1px 6px', borderRadius: '10px', fontSize: '12px', fontWeight: '700' }}>{allResources.length}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ padding: '12px 16px 32px', maxWidth: '600px', margin: '0 auto' }}>
+            {mainBefore.map((s, i) => (
+              <MainSection key={s.id} section={s} content={condition?.content?.[s.id]} isOpen={open[s.id]} onToggle={() => toggle(s.id)} checked={checked} onCheck={check} delay={i * 0.03} disabled={!sectionHasContent(s, condition)} />
+            ))}
+            {bridge && <BridgeSection section={bridge} content={condition?.content?.[bridge.id]} isOpen={open[bridge.id]} onToggle={() => toggle(bridge.id)} checked={checked} onCheck={check} disabled={!sectionHasContent(bridge, condition)} />}
+            {now && <NowSection section={now} condition={condition} isOpen={open[now.id]} onToggle={() => toggle(now.id)} open={open} onToggleSub={toggle} checked={checked} onCheck={check} />}
+            <SidebarSection condition={condition} open={open} onToggle={toggle} checked={checked} onCheck={check} />
+            {future && <MainSection section={future} content={condition?.content?.[future.id]} isOpen={open[future.id]} onToggle={() => toggle(future.id)} checked={checked} onCheck={check} delay={0.18} disabled={!sectionHasContent(future, condition)} />}
+          </div>
+          
+          <ResourcesModal isOpen={showResources} onClose={() => setShowResources(false)} resources={allResources} conditionName={condition?.name} />
+          <ModifierModal isOpen={showModifiers} onClose={() => setShowModifiers(false)} modifiers={condition?.modifiers} conditionName={condition?.name} />
+        </div>
+      );
+    };
+
+    // ============================================
+    // HOME SCREEN
+    // ============================================
+
+    const HomeScreen = ({ onSelectCondition }) => {
+      const [expanded, setExpanded] = useState(null);
+      const getConditions = (id) => conditions.filter(c => c.specialty === id);
+      const activeSpecialties = specialties.filter(s => getConditions(s.id).length > 0);
+
+      return (
+        <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+          <div style={{ padding: '56px 20px 36px', textAlign: 'center', background: 'linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', marginBottom: '20px' }}>
+              {['D','A','R','N'].map((l,i) => (
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(0,122,255,0.3)' }}>{l}</span>
+              ))}
+              {['F','A','S','T','I'].map((l,i) => (
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--accent-green)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(48,209,88,0.3)' }}>{l}</span>
+              ))}
+              {['F'].map((l,i) => (
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #FF9F0A 0%, #FF375F 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(255,159,10,0.3)' }}>{l}</span>
+              ))}
+            </div>
+            <h1 style={{ margin: '0 0 8px', fontSize: '32px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+              <span>DARN</span><span style={{ color: 'var(--accent-green)' }}>FASTI</span><span>F</span>
+            </h1>
+            <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.5' }}>Take the history the way you'll present the history</p>
+          </div>
+
+          <div style={{ padding: '0 16px 32px', maxWidth: '600px', margin: '0 auto' }}>
+            <h2 style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choose a Condition</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {activeSpecialties.map(spec => {
+                const specConditions = getConditions(spec.id);
+                const isExp = expanded === spec.id;
+                return (
+                  <div key={spec.id} style={{ background: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-light)' }}>
+                    <button onClick={() => setExpanded(isExp ? null : spec.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px', textAlign: 'left' }}>
+                      <span style={{ fontSize: '24px', width: '40px', height: '40px', background: 'var(--bg-secondary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{spec.icon}</span>
+                      <span style={{ flex: 1, fontSize: '17px', fontWeight: '600', color: 'var(--text-primary)' }}>{spec.name}</span>
+                      <span style={{ background: 'var(--bg-secondary)', color: 'var(--text-tertiary)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: '600' }}>{specConditions.length}</span>
+                      <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={isExp} /></span>
+                    </button>
+                    {isExp && (
+                      <div style={{ borderTop: '1px solid var(--border-light)', background: 'var(--bg-tertiary)' }}>
+                        {specConditions.map((c, i) => (
+                          <button key={c.id} onClick={() => onSelectCondition(c)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px 14px 72px', borderTop: i > 0 ? '1px solid var(--border-light)' : 'none', textAlign: 'left' }}>
+                            <span style={{ flex: 1, fontSize: '16px', fontWeight: '500', color: 'var(--text-primary)' }}>{c.name}</span>
+                            <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={false} size={16} /></span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p style={{ marginTop: '28px', textAlign: 'center', fontSize: '12px', color: 'var(--text-tertiary)' }}>Framework by Kristeen Barker</p>
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
+    // APP
+    // ============================================
+
+    function App() {
+      const [selected, setSelected] = useState(null);
+      if (selected) return <ConditionView condition={selected} onBack={() => setSelected(null)} />;
+      return <HomeScreen onSelectCondition={setSelected} />;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
