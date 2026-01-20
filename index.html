@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>DARN FAST IF</title>
+  <title>DARNFASTIF</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,35 +16,35 @@
       --bg-secondary: #F5F5F7;
       --bg-tertiary: #FAFAFA;
       --text-primary: #1D1D1F;
-      --text-secondary: #86868B;
+      --text-secondary: #6E6E73;
       --text-tertiary: #AEAEB2;
       --text-disabled: #C7C7CC;
-      --accent-blue: #007AFF;
-      --accent-green: #34C759;
-      --accent-orange: #FF9500;
-      --border-light: rgba(0, 0, 0, 0.06);
-      --border-medium: rgba(0, 0, 0, 0.1);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', sans-serif;
+      --accent-blue: #0071E3;
+      --accent-green: #30D158;
+      --accent-orange: #FF9F0A;
+      --border-light: rgba(0, 0, 0, 0.04);
+      --border-medium: rgba(0, 0, 0, 0.08);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', system-ui, sans-serif;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
     html, body { margin: 0; padding: 0; font-family: var(--font); background: var(--bg-primary); color: var(--text-primary); font-size: 17px; line-height: 1.47; }
     #root { min-height: 100vh; min-height: 100dvh; }
-    button { font-family: inherit; transition: all 0.15s ease; border: none; background: none; cursor: pointer; }
-    button:active { transform: scale(0.98); }
+    button { font-family: inherit; transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1); border: none; background: none; cursor: pointer; }
+    button:active { transform: scale(0.97); }
     button:disabled { cursor: default; transform: none; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes scaleIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-    @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.15); } 100% { transform: scale(1); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -2003,6 +2003,48 @@
     };
 
     // ============================================
+    // MODIFIER MODAL
+    // ============================================
+
+    const ModifierModal = ({ isOpen, onClose, modifiers, conditionName }) => {
+      if (!isOpen || !modifiers?.length) return null;
+      return (
+        <div onClick={onClose} style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, animation: 'fadeIn 0.2s ease', padding: '24px'
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            background: 'white', borderRadius: '20px', width: '100%', maxWidth: '340px',
+            maxHeight: '70vh', display: 'flex', flexDirection: 'column', animation: 'scaleIn 0.25s ease',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: '600' }}>Subtypes & Modifiers</h3>
+              <button onClick={onClose} style={{ padding: '4px', color: 'var(--text-secondary)', borderRadius: '50%', background: 'var(--bg-secondary)', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><CloseIcon size={16} /></button>
+            </div>
+            <div style={{ padding: '12px 16px 20px', overflowY: 'auto', flex: 1 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {modifiers.map((m, i) => (
+                  <div key={i} style={{
+                    padding: '14px 16px',
+                    background: 'var(--bg-tertiary)',
+                    borderRadius: 'var(--radius-md)',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    color: 'var(--text-primary)',
+                    lineHeight: '1.4'
+                  }}>{m}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ============================================
     // CHECKBOX COMPONENT
     // ============================================
 
@@ -2126,15 +2168,16 @@
     const MainSection = ({ section, content, isOpen, onToggle, checked, onCheck, delay = 0, disabled = false }) => {
       const items = content?.length ? content : section.prompts?.map(p => ({ text: p, resources: [] })) || [];
       
+      // Show heading without dropdown if no content
       if (disabled) {
         return (
           <div style={{ animation: `slideUp 0.3s ease ${delay}s forwards`, opacity: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: '1px solid var(--border-light)', opacity: 0.4 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: '1px solid var(--border-light)' }}>
               {section.letter && (
-                <span style={{ width: '42px', height: '42px', borderRadius: '11px', background: 'var(--bg-secondary)', color: 'var(--text-disabled)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '19px', flexShrink: 0 }}>{section.letter}</span>
+                <span style={{ width: '42px', height: '42px', borderRadius: '11px', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '19px', flexShrink: 0 }}>{section.letter}</span>
               )}
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-disabled)' }}>{section.name}</div>
+                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-secondary)' }}>{section.name}</div>
               </div>
             </div>
           </div>
@@ -2177,15 +2220,9 @@
     const BridgeSection = ({ section, content, isOpen, onToggle, checked, onCheck, disabled = false }) => {
       const items = content?.length ? content : section.prompts?.map(p => ({ text: p, resources: [] })) || [];
       
+      // Don't render anything if no content
       if (disabled) {
-        return (
-          <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '2px dashed var(--text-disabled)', position: 'relative', animation: 'slideUp 0.3s ease 0.08s forwards', opacity: 0 }}>
-            <div style={{ position: 'absolute', left: '-8px', top: '20px', width: '14px', height: '14px', borderRadius: '50%', background: 'var(--text-disabled)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}><ArrowDownIcon /></div>
-            <div style={{ padding: '14px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', opacity: 0.5 }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-disabled)' }}>{section.name}</div>
-            </div>
-          </div>
-        );
+        return null;
       }
       
       return (
@@ -2211,77 +2248,47 @@
     };
 
     // ============================================
-    // SIDEBAR SECTION (FASTI)
+    // SIDEBAR SECTION (FASTI) - No "Current Status" header, just DARNFASTIF acronym
     // ============================================
 
     const SidebarSection = ({ condition, open, onToggle, checked, onCheck }) => {
       const sidebarItems = algorithmSections.filter(s => s.type === 'sidebar-item');
-      const isOpen = open['current_status'];
-      const hasAnyContent = sidebarItems.some(item => sectionHasContent(item, condition));
+      // Only show items that have content
+      const itemsWithContent = sidebarItems.filter(item => sectionHasContent(item, condition));
       
-      if (!hasAnyContent) {
-        return (
-          <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '2px solid var(--text-disabled)', position: 'relative', animation: 'slideUp 0.3s ease 0.12s forwards', opacity: 0 }}>
-            <div style={{ position: 'absolute', left: '-32px', top: '50%', transform: 'translateY(-50%) rotate(-90deg)', fontSize: '10px', fontWeight: '700', color: 'var(--text-disabled)', letterSpacing: '1.5px' }}>FASTI</div>
-            <div style={{ padding: '14px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', opacity: 0.5 }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-disabled)' }}>Current Status</div>
-            </div>
-          </div>
-        );
+      if (itemsWithContent.length === 0) {
+        return null; // Don't render anything if no content
       }
       
       return (
-        <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '2px solid var(--accent-green)', position: 'relative', animation: 'slideUp 0.3s ease 0.12s forwards', opacity: 0 }}>
-          <div style={{ position: 'absolute', left: '-32px', top: '50%', transform: 'translateY(-50%) rotate(-90deg)', fontSize: '10px', fontWeight: '700', color: 'var(--accent-green)', letterSpacing: '1.5px' }}>FASTI</div>
-          <button onClick={() => onToggle('current_status')} style={{
-            width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '14px',
-            background: isOpen ? 'rgba(52,199,89,0.08)' : 'rgba(52,199,89,0.04)',
-            border: '1px solid rgba(52,199,89,0.2)', borderRadius: 'var(--radius-sm)', textAlign: 'left'
-          }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: '#2D8A4E' }}>Current Status</div>
-            </div>
-            <span style={{ color: '#2D8A4E' }}><ChevronIcon isOpen={isOpen} size={16} /></span>
-          </button>
-          {isOpen && (
-            <div style={{ marginTop: '6px', display: 'flex', flexDirection: 'column', gap: '4px', animation: 'scaleIn 0.15s ease' }}>
-              {sidebarItems.map(item => {
-                const hasContent = sectionHasContent(item, condition);
-                const itemOpen = open[item.id];
-                const items = condition?.content?.[item.id] || item.prompts?.map(p => ({ text: p, resources: [] })) || [];
-                
-                if (!hasContent) {
-                  return (
-                    <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', opacity: 0.4 }}>
-                      <span style={{ width: '26px', height: '26px', borderRadius: '7px', background: 'var(--bg-tertiary)', color: 'var(--text-disabled)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '13px' }}>{item.letter}</span>
-                      <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-disabled)' }}>{item.name}</span>
+        <div style={{ margin: '4px 0 4px 21px', paddingLeft: '28px', borderLeft: '3px solid var(--accent-green)', position: 'relative', animation: 'slideUp 0.3s ease 0.12s forwards', opacity: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            {itemsWithContent.map(item => {
+              const itemOpen = open[item.id];
+              const items = condition?.content?.[item.id] || item.prompts?.map(p => ({ text: p, resources: [] })) || [];
+              
+              return (
+                <div key={item.id}>
+                  <button onClick={() => onToggle(item.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'white', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', textAlign: 'left' }}>
+                    <span style={{
+                      width: '26px', height: '26px', borderRadius: '7px',
+                      background: itemOpen ? 'var(--accent-green)' : 'var(--bg-secondary)',
+                      color: itemOpen ? 'white' : 'var(--text-secondary)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: '600', fontSize: '13px', transition: 'all 0.15s ease'
+                    }}>{item.letter}</span>
+                    <span style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>{item.name}</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={itemOpen} size={14} /></span>
+                  </button>
+                  {itemOpen && items.length > 0 && (
+                    <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '4px', marginTop: '4px', animation: 'scaleIn 0.12s ease' }}>
+                      {items.map((p, i) => <Checkbox key={i} checked={checked[`${item.id}-${i}`]} onChange={() => onCheck(item.id, i)} label={p.text || p} resources={p.resources || []} />)}
                     </div>
-                  );
-                }
-                
-                return (
-                  <div key={item.id}>
-                    <button onClick={() => onToggle(item.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', background: 'white', border: '1px solid var(--border-light)', borderRadius: 'var(--radius-sm)', textAlign: 'left' }}>
-                      <span style={{
-                        width: '26px', height: '26px', borderRadius: '7px',
-                        background: itemOpen ? 'var(--accent-green)' : 'var(--bg-secondary)',
-                        color: itemOpen ? 'white' : 'var(--text-secondary)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontWeight: '600', fontSize: '13px', transition: 'all 0.15s ease'
-                      }}>{item.letter}</span>
-                      <span style={{ flex: 1, fontSize: '14px', fontWeight: '500', color: 'var(--text-primary)' }}>{item.name}</span>
-                      <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={itemOpen} size={14} /></span>
-                    </button>
-                    {itemOpen && items.length > 0 && (
-                      <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-sm)', padding: '4px', marginTop: '4px', animation: 'scaleIn 0.12s ease' }}>
-                        {items.map((p, i) => <Checkbox key={i} checked={checked[`${item.id}-${i}`]} onChange={() => onCheck(item.id, i)} label={p.text || p} resources={p.resources || []} />)}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       );
     };
@@ -2292,19 +2299,12 @@
 
     const NowSection = ({ section, condition, isOpen, onToggle, open, onToggleSub, checked, onCheck }) => {
       const children = algorithmSections.filter(s => s.parent === 'now');
-      const hasContent = children.some(child => sectionHasContent(child, condition));
+      // Only show children that have content
+      const childrenWithContent = children.filter(child => sectionHasContent(child, condition));
       
-      if (!hasContent) {
-        return (
-          <div style={{ animation: 'slideUp 0.3s ease 0.1s forwards', opacity: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '18px 0', borderBottom: '1px solid var(--border-light)', opacity: 0.4 }}>
-              <span style={{ width: '42px', height: '42px', borderRadius: '11px', background: 'var(--bg-secondary)', color: 'var(--text-disabled)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '19px', flexShrink: 0 }}>{section.letter}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-disabled)' }}>{section.name}</div>
-              </div>
-            </div>
-          </div>
-        );
+      // Don't render anything if no content
+      if (childrenWithContent.length === 0) {
+        return null;
       }
       
       return (
@@ -2325,18 +2325,9 @@
           </button>
           {isOpen && (
             <div style={{ background: 'var(--bg-tertiary)', borderRadius: 'var(--radius-md)', padding: '10px', marginBottom: '12px', animation: 'scaleIn 0.2s ease' }}>
-              {children.map(child => {
-                const childHasContent = sectionHasContent(child, condition);
+              {childrenWithContent.map(child => {
                 const childOpen = open[child.id];
                 const items = condition?.content?.[child.id] || child.prompts?.map(p => ({ text: p, resources: [] })) || [];
-                
-                if (!childHasContent) {
-                  return (
-                    <div key={child.id} style={{ marginBottom: '6px', padding: '12px 14px', background: 'var(--bg-secondary)', borderRadius: 'var(--radius-sm)', opacity: 0.4 }}>
-                      <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-disabled)' }}>{child.name}</span>
-                    </div>
-                  );
-                }
                 
                 return (
                   <div key={child.id} style={{ marginBottom: '6px' }}>
@@ -2366,6 +2357,7 @@
       const [open, setOpen] = useState({});
       const [checked, setChecked] = useState({});
       const [showResources, setShowResources] = useState(false);
+      const [showModifiers, setShowModifiers] = useState(false);
       
       const toggle = (id) => setOpen(p => ({ ...p, [id]: !p[id] }));
       const check = (sec, idx) => setChecked(p => ({ ...p, [`${sec}-${idx}`]: !p[`${sec}-${idx}`] }));
@@ -2445,12 +2437,18 @@
             
             <div style={{ padding: '0 16px 10px', maxWidth: '600px', margin: '0 auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                {condition?.modifiers && (
-                  <div className="hide-scrollbar" style={{ display: 'flex', gap: '6px', flex: 1, overflowX: 'auto' }}>
-                    {condition.modifiers.map((m, i) => (
-                      <span key={i} style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', padding: '5px 10px', borderRadius: '14px', fontSize: '12px', fontWeight: '500', whiteSpace: 'nowrap' }}>{m}</span>
-                    ))}
-                  </div>
+                {condition?.modifiers?.length > 0 && (
+                  <button onClick={() => setShowModifiers(true)} style={{
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px',
+                    background: 'var(--bg-secondary)', border: '1px solid var(--border-light)',
+                    borderRadius: '20px', fontSize: '13px', fontWeight: '500', color: 'var(--text-secondary)',
+                    flex: 1, justifyContent: 'space-between', maxWidth: '280px'
+                  }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      Heading Modifiers
+                    </span>
+                    <ChevronIcon isOpen={false} size={14} />
+                  </button>
                 )}
                 {allResources.length > 0 && (
                   <button onClick={() => setShowResources(true)} style={{
@@ -2479,6 +2477,7 @@
           </div>
           
           <ResourcesModal isOpen={showResources} onClose={() => setShowResources(false)} resources={allResources} conditionName={condition?.name} />
+          <ModifierModal isOpen={showModifiers} onClose={() => setShowModifiers(false)} modifiers={condition?.modifiers} conditionName={condition?.name} />
         </div>
       );
     };
@@ -2494,43 +2493,43 @@
 
       return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
-          <div style={{ padding: '48px 20px 32px', textAlign: 'center', background: 'linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
-            <div style={{ display: 'inline-flex', gap: '3px', marginBottom: '16px' }}>
+          <div style={{ padding: '56px 20px 36px', textAlign: 'center', background: 'linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', marginBottom: '20px' }}>
               {['D','A','R','N'].map((l,i) => (
-                <span key={i} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '16px', boxShadow: 'var(--shadow-sm)' }}>{l}</span>
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #007AFF 0%, #5856D6 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(0,122,255,0.3)' }}>{l}</span>
               ))}
-              <span style={{ width: '8px' }} />
-              {['F','A','S','T'].map((l,i) => (
-                <span key={i} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--accent-green)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '16px', boxShadow: 'var(--shadow-sm)' }}>{l}</span>
+              {['F','A','S','T','I'].map((l,i) => (
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--accent-green)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(48,209,88,0.3)' }}>{l}</span>
               ))}
-              <span style={{ width: '8px' }} />
-              {['I','F'].map((l,i) => (
-                <span key={i} style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #FF9500 0%, #FF3B30 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '600', fontSize: '16px', boxShadow: 'var(--shadow-sm)' }}>{l}</span>
+              {['F'].map((l,i) => (
+                <span key={i} style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #FF9F0A 0%, #FF375F 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '17px', boxShadow: '0 2px 8px rgba(255,159,10,0.3)' }}>{l}</span>
               ))}
             </div>
-            <h1 style={{ margin: '0 0 6px', fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>DARN FAST IF</h1>
-            <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '260px', marginLeft: 'auto', marginRight: 'auto' }}>Take the history the way you'll present the history</p>
+            <h1 style={{ margin: '0 0 8px', fontSize: '32px', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
+              <span>DARN</span><span style={{ color: 'var(--accent-green)' }}>FASTI</span><span>F</span>
+            </h1>
+            <p style={{ margin: 0, fontSize: '15px', color: 'var(--text-secondary)', maxWidth: '280px', marginLeft: 'auto', marginRight: 'auto', lineHeight: '1.5' }}>Take the history the way you'll present the history</p>
           </div>
 
           <div style={{ padding: '0 16px 32px', maxWidth: '600px', margin: '0 auto' }}>
-            <h2 style={{ margin: '0 0 12px', fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choose a Condition</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <h2 style={{ margin: '0 0 14px', fontSize: '13px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Choose a Condition</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {activeSpecialties.map(spec => {
                 const specConditions = getConditions(spec.id);
                 const isExp = expanded === spec.id;
                 return (
                   <div key={spec.id} style={{ background: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-light)' }}>
-                    <button onClick={() => setExpanded(isExp ? null : spec.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 16px', textAlign: 'left' }}>
-                      <span style={{ fontSize: '22px', width: '36px', height: '36px', background: 'var(--bg-secondary)', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{spec.icon}</span>
-                      <span style={{ flex: 1, fontSize: '16px', fontWeight: '600', color: 'var(--text-primary)' }}>{spec.name}</span>
-                      <span style={{ background: 'var(--bg-secondary)', color: 'var(--text-secondary)', padding: '3px 8px', borderRadius: '10px', fontSize: '12px', fontWeight: '500' }}>{specConditions.length}</span>
+                    <button onClick={() => setExpanded(isExp ? null : spec.id)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '14px', padding: '16px 18px', textAlign: 'left' }}>
+                      <span style={{ fontSize: '24px', width: '40px', height: '40px', background: 'var(--bg-secondary)', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{spec.icon}</span>
+                      <span style={{ flex: 1, fontSize: '17px', fontWeight: '600', color: 'var(--text-primary)' }}>{spec.name}</span>
+                      <span style={{ background: 'var(--bg-secondary)', color: 'var(--text-tertiary)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: '600' }}>{specConditions.length}</span>
                       <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={isExp} /></span>
                     </button>
                     {isExp && (
                       <div style={{ borderTop: '1px solid var(--border-light)', background: 'var(--bg-tertiary)' }}>
                         {specConditions.map((c, i) => (
-                          <button key={c.id} onClick={() => onSelectCondition(c)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 16px 12px 64px', borderTop: i > 0 ? '1px solid var(--border-light)' : 'none', textAlign: 'left' }}>
-                            <span style={{ flex: 1, fontSize: '15px', fontWeight: '500', color: 'var(--text-primary)' }}>{c.name}</span>
+                          <button key={c.id} onClick={() => onSelectCondition(c)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px 14px 72px', borderTop: i > 0 ? '1px solid var(--border-light)' : 'none', textAlign: 'left' }}>
+                            <span style={{ flex: 1, fontSize: '16px', fontWeight: '500', color: 'var(--text-primary)' }}>{c.name}</span>
                             <span style={{ color: 'var(--text-tertiary)' }}><ChevronIcon isOpen={false} size={16} /></span>
                           </button>
                         ))}
@@ -2540,7 +2539,7 @@
                 );
               })}
             </div>
-            <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '12px', color: 'var(--text-tertiary)' }}>Framework by Kristeen Barker</p>
+            <p style={{ marginTop: '28px', textAlign: 'center', fontSize: '12px', color: 'var(--text-tertiary)' }}>Framework by Kristeen Barker</p>
           </div>
         </div>
       );
